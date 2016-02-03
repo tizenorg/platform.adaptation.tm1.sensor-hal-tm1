@@ -18,7 +18,7 @@
 		<MODEL id="K2HH">
 			<NAME value="K2HH" />
 			<VENDOR value="ST Microelectronics"/>
-			<RAW_DATA_UNIT value="0.061"/>
+			<RAW_DATA_UNIT value="0.122"/>
 			<RESOLUTION value="16"/>
 		</MODEL>
 

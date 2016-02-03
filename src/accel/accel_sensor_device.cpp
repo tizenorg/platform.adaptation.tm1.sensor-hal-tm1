@@ -21,8 +21,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <linux/input.h>
-#include <accel_sensor_device.h>
 #include <sys/poll.h>
+#include "accel_sensor_device.h"
 
 #define GRAVITY 9.80665
 #define G_TO_MG 1000

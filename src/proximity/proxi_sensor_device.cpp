@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <linux/input.h>
-#include <proxi_sensor_device.h>
+#include "proxi_sensor_device.h"
 
 #define MODEL_NAME "K2HH"
 #define VENDOR "ST Microelectronics"

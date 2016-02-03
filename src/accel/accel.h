@@ -23,8 +23,7 @@
 #include <sensor_hal.h>
 #include <string>
 
-class accel_device : public sensor_device
-{
+class accel_device : public sensor_device {
 public:
 	accel_device();
 	virtual ~accel_device();

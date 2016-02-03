@@ -156,8 +156,7 @@ typedef int (*create_t)(sensor_device_t **devices);
  * Sensor device interface
  * 1 device must be abstracted from 1 device event node
  */
-class sensor_device
-{
+class sensor_device {
 public:
 	virtual ~sensor_device() {}
 
@@ -178,6 +177,7 @@ public:
 
 	virtual int read_fd(uint16_t **ids) = 0;
 	virtual int get_data(uint16_t id, sensor_data_t **data, int *length) = 0;
+
 	virtual bool flush(uint16_t id) = 0;
 };
 #endif /* __cplusplus */

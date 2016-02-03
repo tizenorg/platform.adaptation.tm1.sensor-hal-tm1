@@ -61,8 +61,6 @@ private:
 
 	bool m_sensorhub_controlled;
 
-	cmutex m_value_mutex;
-
 	bool update_value_input_event(void);
 	bool update_value_iio(void);
 };

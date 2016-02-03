@@ -21,7 +21,6 @@
 #define _SENSOR_HAL_BASE_H_
 #include <sys/time.h>
 #include <sensor_common.h>
-#include <cmutex.h>
 #include <sensor_logs.h>
 #include <string>
 #include <sensor_hal.h>
@@ -79,9 +78,6 @@ public:
 	int send_sensorhub_data(const char *data, int data_len);
 
 protected:
-	cmutex m_mutex;
-	static cmutex m_shared_mutex;
-
 	bool set_enable_node(const std::string &node_path, bool sensorhub_controlled, bool enable, int enable_bit = 0);
 
 	static unsigned long long get_timestamp(void);

@@ -73,9 +73,7 @@ configure_file(hal_module_create.cpp.in hal_module_create.cpp)
 
 add_library(${PROJECT_NAME} SHARED
 	${SRCS}
-	lib/cbase_lock.cpp
 	lib/cconfig.cpp
-	lib/cmutex.cpp
 	lib/csensor_config.cpp
 	lib/sensor_logs.cpp
 	interface/sensor_hal_base.cpp

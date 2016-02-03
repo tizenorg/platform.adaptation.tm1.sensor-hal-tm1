@@ -165,8 +165,6 @@ sensor_hal_type_t accel_sensor_hal::get_type(void)
 
 bool accel_sensor_hal::enable(void)
 {
-	AUTOLOCK(m_mutex);
-
 	set_enable_node(m_enable_node, m_sensorhub_controlled, true, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
 	set_interval(m_polling_interval);
 
@@ -177,8 +175,6 @@ bool accel_sensor_hal::enable(void)
 
 bool accel_sensor_hal::disable(void)
 {
-	AUTOLOCK(m_mutex);
-
 	set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
 
 	INFO("Accel sensor real stopping");
@@ -188,9 +184,6 @@ bool accel_sensor_hal::disable(void)
 bool accel_sensor_hal::set_interval(unsigned long val)
 {
 	unsigned long long polling_interval_ns;
-
-	AUTOLOCK(m_mutex);
-
 	polling_interval_ns = ((unsigned long long)(val) * 1000llu * 1000llu);
 
 	if (!set_node_value(m_interval_node, polling_interval_ns)) {
@@ -259,8 +252,6 @@ bool accel_sensor_hal::update_value_input_event()
 		return false;
 	}
 
-	AUTOLOCK(m_value_mutex);
-
 	if (x)
 		m_x =  accel_raw[0];
 	if (y)
@@ -313,8 +304,6 @@ bool accel_sensor_hal::update_value_iio()
 		return false;
 	}
 
-	AUTOLOCK(m_value_mutex);
-
 	short *short_data = (short *)(data);
 	m_x = *(short_data);
 	m_y = *((short *)(data + 2));
@@ -325,7 +314,6 @@ bool accel_sensor_hal::update_value_iio()
 	INFO("m_x = %d, m_y = %d, m_z = %d, time = %lluus", m_x, m_y, m_z, m_fired_time);
 
 	return true;
-
 }
 
 bool accel_sensor_hal::is_data_ready(void)
@@ -337,8 +325,6 @@ bool accel_sensor_hal::is_data_ready(void)
 
 int accel_sensor_hal::get_sensor_data(sensor_data_t &data)
 {
-	AUTOLOCK(m_value_mutex);
-
 	data.accuracy = SENSOR_ACCURACY_GOOD;
 	data.timestamp = m_fired_time;
 	data.value_count = 3;

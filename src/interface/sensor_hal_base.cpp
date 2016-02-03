@@ -28,8 +28,6 @@ using std::ofstream;
 using std::fstream;
 using std::string;
 
-cmutex sensor_hal_base::m_shared_mutex;
-
 sensor_hal_base::sensor_hal_base()
 {
 }
@@ -210,8 +208,6 @@ bool sensor_hal_base::get_node_value(const string &node_path, int &value)
 bool sensor_hal_base::set_enable_node(const string &node_path, bool sensorhub_controlled, bool enable, int enable_bit)
 {
 	int prev_status, status;
-
-	AUTOLOCK(m_shared_mutex);
 
 	if (!get_node_value(node_path, prev_status)) {
 		ERR("Failed to get node: %s", node_path.c_str());

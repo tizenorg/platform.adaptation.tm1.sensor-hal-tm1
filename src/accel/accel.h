@@ -1,5 +1,5 @@
 /*
- * accel_sensor_device
+ * accel_device
  *
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
@@ -17,28 +17,31 @@
  *
  */
 
-#ifndef _ACCEL_SENSOR_DEVICE_H_
-#define _ACCEL_SENSOR_DEVICE_H_
+#ifndef _ACCEL_DEVICE_H_
+#define _ACCEL_DEVICE_H_
 
+#include <vector>
 #include <sensor_hal.h>
 
-class accel_sensor_device : public sensor_device
+class accel_device : public sensor_device
 {
 public:
-	accel_sensor_device();
-	virtual ~accel_sensor_device();
+	accel_device();
+	virtual ~accel_device();
 
 	int get_poll_fd(void);
 	bool get_sensors(std::vector<sensor_handle_t> &sensors);
-	bool enable(uint32_t id);
-	bool disable(uint32_t id);
-	bool set_interval(uint32_t id, unsigned long val);
-	bool set_batch_latency(uint32_t id, unsigned long val);
-	bool set_command(uint32_t id, std::string command, std::string value);
-	bool is_data_ready(void);
-	bool get_sensor_data(uint32_t id, sensor_data_t &data);
-	int get_sensor_event(uint32_t id, sensor_event_t **event);
-	bool get_properties(uint32_t id, sensor_properties_s &properties);
+
+	bool enable(uint16_t id);
+	bool disable(uint16_t id);
+
+	bool set_interval(uint16_t id, unsigned long val);
+	bool set_batch_latency(uint16_t id, unsigned long val);
+	bool set_attribute(uint16_t id, int32_t attribute, int32_t value);
+
+	bool read_fd(std::vector<uint16_t> &ids);
+	int get_data(uint16_t id, sensor_data_t **data);
+	bool flush(uint16_t id);
 
 private:
 	int m_node_handle;
@@ -54,6 +57,6 @@ private:
 	std::string m_interval_node;
 
 	bool update_value_input_event(void);
-	void raw_to_base(sensor_data_t &data);
+	void raw_to_base(sensor_data_t *data);
 };
-#endif /*_ACCEL_SENSOR_DEVICE_CLASS_H_*/
+#endif /*_ACCEL_DEVICE_H_*/

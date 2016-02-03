@@ -1,5 +1,5 @@
 /*
- * accel_sensor_device
+ * accel_device
  *
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
@@ -21,7 +21,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <linux/input.h>
-#include <sys/poll.h>
 #include <util.h>
 #include <macro.h>
 #include <sensor_logs.h>
@@ -40,17 +39,17 @@
 #define RESOLUTION 16
 #define RAW_DATA_UNIT 0.122
 #define MIN_INTERVAL 1
-#define FIFO_COUNT 0
 #define MAX_BATCH_COUNT 0
 
-static const sensor_properties_s accel_properties = {
-	name : MODEL_NAME,
+#define SENSORHUB_ACCELEROMETER_ENABLE_BIT 0
+
+static const sensor_info_t accel_info = {
+	model_name : MODEL_NAME,
 	vendor : VENDOR,
 	min_range : MIN_RANGE(RESOLUTION) * RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
 	max_range : MAX_RANGE(RESOLUTION) * RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
 	resolution : RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
 	min_interval : MIN_INTERVAL,
-	fifo_count : FIFO_COUNT,
 	max_batch_count : MAX_BATCH_COUNT,
 };
 
@@ -60,18 +59,18 @@ static const sensor_handle_t handles[] = {
 		name: "Accelerometer",
 		type: SENSOR_DEVICE_ACCELEROMETER,
 		event_type: (SENSOR_DEVICE_ACCELEROMETER << 16) | 0x0001,
-		properties : accel_properties
+		info : accel_info
 	},
 	{
 		id: 0x2,
 		name: "Accelerometer RAW",
 		type: SENSOR_DEVICE_ACCELEROMETER,
 		event_type: (SENSOR_DEVICE_ACCELEROMETER << 16) | 0x0002,
-		properties : accel_properties
+		info : accel_info
 	}
 };
 
-accel_sensor_device::accel_sensor_device()
+accel_device::accel_device()
 : m_node_handle(-1)
 , m_x(-1)
 , m_y(-1)
@@ -107,18 +106,23 @@ accel_sensor_device::accel_sensor_device()
 		throw ENXIO;
 	}
 
-	INFO("accel_sensor_device is created!\n");
+	INFO("accel_device is created!\n");
 }
 
-accel_sensor_device::~accel_sensor_device()
+accel_device::~accel_device()
 {
 	close(m_node_handle);
 	m_node_handle = -1;
 
-	INFO("accel_sensor_device is destroyed!\n");
+	INFO("accel_device is destroyed!\n");
 }
 
-bool accel_sensor_device::get_sensors(std::vector<sensor_handle_t> &sensors)
+int accel_device::get_poll_fd()
+{
+	return m_node_handle;
+}
+
+bool accel_device::get_sensors(std::vector<sensor_handle_t> &sensors)
 {
 	int size = ARRAY_SIZE(handles);
 
@@ -128,7 +132,7 @@ bool accel_sensor_device::get_sensors(std::vector<sensor_handle_t> &sensors)
 	return true;
 }
 
-bool accel_sensor_device::enable(uint32_t id)
+bool accel_device::enable(uint16_t id)
 {
 	util::set_enable_node(m_enable_node, m_sensorhub_controlled, true, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
 	set_interval(id, m_polling_interval);
@@ -138,7 +142,7 @@ bool accel_sensor_device::enable(uint32_t id)
 	return true;
 }
 
-bool accel_sensor_device::disable(uint32_t id)
+bool accel_device::disable(uint16_t id)
 {
 	util::set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
 
@@ -146,12 +150,7 @@ bool accel_sensor_device::disable(uint32_t id)
 	return true;
 }
 
-int accel_sensor_device::get_poll_fd()
-{
-	return m_node_handle;
-}
-
-bool accel_sensor_device::set_interval(uint32_t id, unsigned long val)
+bool accel_device::set_interval(uint16_t id, unsigned long val)
 {
 	unsigned long long polling_interval_ns;
 
@@ -167,24 +166,17 @@ bool accel_sensor_device::set_interval(uint32_t id, unsigned long val)
 	return true;
 }
 
-bool accel_sensor_device::set_batch_latency(uint32_t id, unsigned long val)
+bool accel_device::set_batch_latency(uint16_t id, unsigned long val)
 {
 	return false;
 }
 
-bool accel_sensor_device::set_command(uint32_t id, std::string command, std::string value)
+bool accel_device::set_attribute(uint16_t id, int32_t attribute, int32_t value)
 {
 	return false;
 }
 
-bool accel_sensor_device::is_data_ready(void)
-{
-	bool ret;
-	ret = update_value_input_event();
-	return ret;
-}
-
-bool accel_sensor_device::update_value_input_event(void)
+bool accel_device::update_value_input_event(void)
 {
 	int accel_raw[3] = {0,};
 	bool x,y,z;
@@ -254,56 +246,47 @@ bool accel_sensor_device::update_value_input_event(void)
 	return true;
 }
 
-bool accel_sensor_device::get_sensor_data(uint32_t id, sensor_data_t &data)
+bool accel_device::read_fd(std::vector<uint16_t> &ids)
 {
-	data.accuracy = SENSOR_ACCURACY_GOOD;
-	data.timestamp = m_fired_time;
-	data.value_count = 3;
-	data.values[0] = m_x;
-	data.values[1] = m_y;
-	data.values[2] = m_z;
+	if (!update_value_input_event()) {
+		DBG("Failed to update value");
+		return false;
+	}
 
-	raw_to_base(data);
+	ids.push_back(handles[0].id);
+	ids.push_back(handles[1].id);
 
 	return true;
 }
 
-int accel_sensor_device::get_sensor_event(uint32_t id, sensor_event_t **event)
+int accel_device::get_data(uint16_t id, sensor_data_t **data)
 {
-	sensor_event_t *sensor_event;
-	sensor_event = (sensor_event_t *)malloc(sizeof(sensor_event_t));
+	sensor_data_t *sensor_data;
+	sensor_data = (sensor_data_t *)malloc(sizeof(sensor_data_t));
 
-	sensor_event->data.accuracy = SENSOR_ACCURACY_GOOD;
-	sensor_event->data.timestamp = m_fired_time;
-	sensor_event->data.value_count = 3;
-	sensor_event->data.values[0] = m_x;
-	sensor_event->data.values[1] = m_y;
-	sensor_event->data.values[2] = m_z;
+	sensor_data->accuracy = SENSOR_ACCURACY_GOOD;
+	sensor_data->timestamp = m_fired_time;
+	sensor_data->value_count = 3;
+	sensor_data->values[0] = m_x;
+	sensor_data->values[1] = m_y;
+	sensor_data->values[2] = m_z;
 
-	raw_to_base(sensor_event->data);
+	raw_to_base(sensor_data);
 
-	*event = sensor_event;
+	*data = sensor_data;
 
-	return sizeof(sensor_event_t);
+	return sizeof(sensor_data_t);
 }
 
-void accel_sensor_device::raw_to_base(sensor_data_t &data)
+bool accel_device::flush(uint16_t id)
 {
-	data.value_count = 3;
-	data.values[0] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data.values[0] * RAW_DATA_UNIT);
-	data.values[1] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data.values[1] * RAW_DATA_UNIT);
-	data.values[2] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data.values[2] * RAW_DATA_UNIT);
+	return false;
 }
 
-bool accel_sensor_device::get_properties(uint32_t id, sensor_properties_s &properties)
+void accel_device::raw_to_base(sensor_data_t *data)
 {
-	properties.name = MODEL_NAME;
-	properties.vendor = VENDOR;
-	properties.min_range = accel_properties.min_range;
-	properties.max_range = accel_properties.max_range;
-	properties.min_interval = accel_properties.min_interval;
-	properties.resolution = accel_properties.resolution;
-	properties.fifo_count = accel_properties.fifo_count;
-	properties.max_batch_count = accel_properties.max_batch_count;
-	return true;
+	data->value_count = 3;
+	data->values[0] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data->values[0] * RAW_DATA_UNIT);
+	data->values[1] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data->values[1] * RAW_DATA_UNIT);
+	data->values[2] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data->values[2] * RAW_DATA_UNIT);
 }

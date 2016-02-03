@@ -60,7 +60,7 @@ extern "C" sensor_devices* create(void)
 	retvm_if(!devices, NULL, "Failed to allocate memory");
 
 #ifdef ENABLE_ACCEL
-	create_sensor<accel_sensor_device>("Accel");
+	create_sensor<accel_device>("Accel");
 #endif
 
 #ifdef ENABLE_GYRO

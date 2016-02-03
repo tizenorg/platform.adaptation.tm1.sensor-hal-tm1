@@ -20,7 +20,8 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <linux/input.h>
-#include "proxi_sensor_device.h"
+#include <util.h>
+#include "proxi.h"
 
 #define MODEL_NAME "K2HH"
 #define VENDOR "ST Microelectronics"
@@ -63,18 +64,18 @@ proxi_sensor_device::proxi_sensor_device()
 	node_info_query query;
 	node_info info;
 
-	query.sensorhub_controlled = m_sensorhub_controlled = is_sensorhub_controlled(sensorhub_interval_node_name);
+	query.sensorhub_controlled = m_sensorhub_controlled = util::is_sensorhub_controlled(sensorhub_interval_node_name);
 	query.sensor_type = "PROXI";
 	query.key = "proximity_sensor";
 	query.iio_enable_node_name = "proximity_enable";
 	query.sensorhub_interval_node_name = sensorhub_interval_node_name;
 
-	if (!get_node_info(query, info)) {
+	if (!util::get_node_info(query, info)) {
 		ERR("Failed to get node info");
 		throw ENXIO;
 	}
 
-	show_node_info(info);
+	util::show_node_info(info);
 
 	m_data_node = info.data_node_path;
 	m_enable_node = info.enable_node_path;
@@ -107,7 +108,7 @@ bool proxi_sensor_device::get_sensors(std::vector<sensor_handle_t> &sensors)
 
 bool proxi_sensor_device::enable(uint32_t id)
 {
-	set_enable_node(m_enable_node, m_sensorhub_controlled, true, SENSORHUB_PROXIMITY_ENABLE_BIT);
+	util::set_enable_node(m_enable_node, m_sensorhub_controlled, true, SENSORHUB_PROXIMITY_ENABLE_BIT);
 
 	m_fired_time = 0;
 	INFO("Enable proximity sensor");
@@ -116,7 +117,7 @@ bool proxi_sensor_device::enable(uint32_t id)
 
 bool proxi_sensor_device::disable(uint32_t id)
 {
-	set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_PROXIMITY_ENABLE_BIT);
+	util::set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_PROXIMITY_ENABLE_BIT);
 
 	INFO("Disable proximity sensor");
 	return true;
@@ -163,7 +164,7 @@ bool proxi_sensor_device::update_value(void)
 
 	if ((proxi_event.type == EV_ABS) && (proxi_event.code == ABS_DISTANCE)) {
 		m_state = proxi_event.value;
-		m_fired_time = sensor_device_base::get_timestamp(&proxi_event.time);
+		m_fired_time = util::get_timestamp(&proxi_event.time);
 
 		DBG("m_state = %d, time = %lluus", m_state, m_fired_time);
 

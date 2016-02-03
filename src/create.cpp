@@ -19,10 +19,10 @@
 
 #include <sensor_common.h>
 
-#include "accel/accel_sensor_device.h"
+#include "accel/accel.h"
 //#include "gyro/gyro_sensor_device.h"
 //#include "magnetic/geo_sensor_device.h"
-#include "proximity/proxi_sensor_device.h"
+#include "proximity/proxi.h"
 //#include "light/light_sensor_device.h"
 //#include "rotation_vector/rv_raw_sensor_device.h"
 //#include "pressure/pressure_sensor_device.h"

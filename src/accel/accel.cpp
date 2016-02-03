@@ -22,7 +22,8 @@
 #include <sys/stat.h>
 #include <linux/input.h>
 #include <sys/poll.h>
-#include "accel_sensor_device.h"
+#include <util.h>
+#include "accel.h"
 
 #define GRAVITY 9.80665
 #define G_TO_MG 1000
@@ -82,18 +83,18 @@ accel_sensor_device::accel_sensor_device()
 	node_info_query query;
 	node_info info;
 
-	query.sensorhub_controlled = m_sensorhub_controlled = is_sensorhub_controlled(sensorhub_interval_node_name);
+	query.sensorhub_controlled = m_sensorhub_controlled = util::is_sensorhub_controlled(sensorhub_interval_node_name);
 	query.sensor_type = "ACCEL";
 	query.key = "accelerometer_sensor";
 	query.iio_enable_node_name = "accel_enable";
 	query.sensorhub_interval_node_name = sensorhub_interval_node_name;
 
-	if (!get_node_info(query, info)) {
+	if (!util::get_node_info(query, info)) {
 		ERR("Failed to get node info");
 		throw ENXIO;
 	}
 
-	show_node_info(info);
+	util::show_node_info(info);
 
 	m_data_node = info.data_node_path;
 	m_enable_node = info.enable_node_path;
@@ -127,7 +128,7 @@ bool accel_sensor_device::get_sensors(std::vector<sensor_handle_t> &sensors)
 
 bool accel_sensor_device::enable(uint32_t id)
 {
-	set_enable_node(m_enable_node, m_sensorhub_controlled, true, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
+	util::set_enable_node(m_enable_node, m_sensorhub_controlled, true, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
 	set_interval(id, m_polling_interval);
 
 	m_fired_time = 0;
@@ -137,7 +138,7 @@ bool accel_sensor_device::enable(uint32_t id)
 
 bool accel_sensor_device::disable(uint32_t id)
 {
-	set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
+	util::set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
 
 	INFO("Disable accelerometer sensor");
 	return true;
@@ -154,7 +155,7 @@ bool accel_sensor_device::set_interval(uint32_t id, unsigned long val)
 
 	polling_interval_ns = ((unsigned long long)(val) * 1000llu * 1000llu);
 
-	if (!set_node_value(m_interval_node, polling_interval_ns)) {
+	if (!util::set_node_value(m_interval_node, polling_interval_ns)) {
 		ERR("Failed to set polling resource: %s\n", m_interval_node.c_str());
 		return false;
 	}
@@ -225,7 +226,7 @@ bool accel_sensor_device::update_value_input_event(void)
 			}
 		} else if (accel_input.type == EV_SYN) {
 			syn = true;
-			fired_time = sensor_device_base::get_timestamp(&accel_input.time);
+			fired_time = util::get_timestamp(&accel_input.time);
 		} else {
 			ERR("accel_input event[type = %d, code = %d] is unknown.", accel_input.type, accel_input.code);
 			return false;

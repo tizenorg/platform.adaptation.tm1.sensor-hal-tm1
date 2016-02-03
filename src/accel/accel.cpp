@@ -266,8 +266,9 @@ int accel_device::read_fd(uint16_t **ids)
 	return size;
 }
 
-int accel_device::get_data(uint16_t id, sensor_data_t **data)
+int accel_device::get_data(uint16_t id, sensor_data_t **data, int *length)
 {
+	int remains = 1;
 	sensor_data_t *sensor_data;
 	sensor_data = (sensor_data_t *)malloc(sizeof(sensor_data_t));
 
@@ -281,8 +282,9 @@ int accel_device::get_data(uint16_t id, sensor_data_t **data)
 	raw_to_base(sensor_data);
 
 	*data = sensor_data;
+	*length = sizeof(sensor_data_t);
 
-	return sizeof(sensor_data_t);
+	return --remains;
 }
 
 bool accel_device::flush(uint16_t id)

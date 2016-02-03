@@ -25,6 +25,8 @@
 #include <string>
 #include <vector>
 
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+
 #ifndef DEPRECATED
 #define DEPRECATED __attribute__((deprecated))
 #endif

@@ -20,7 +20,6 @@
 #ifndef _SENSOR_HAL_BASE_H_
 #define _SENSOR_HAL_BASE_H_
 #include <sys/time.h>
-#include <sensor_common.h>
 #include <sensor_logs.h>
 #include <string>
 #include <sensor_hal.h>

@@ -28,20 +28,23 @@ class accel_sensor_hal : public sensor_hal_base
 public:
 	accel_sensor_hal();
 	virtual ~accel_sensor_hal();
-	std::string get_model_id(void);
-	sensor_hal_type_t get_type(void);
-	bool enable(void);
-	bool disable(void);
-	bool set_interval(unsigned long val);
-	bool is_data_ready();
-	virtual int get_sensor_data(sensor_data_t &data);
-	bool get_properties(sensor_properties_s &properties);
+
+	int get_poll_fd(void);
+	bool get_sensors(std::vector<sensor_handle_t> &sensors);
+	bool enable(uint32_t id);
+	bool disable(uint32_t id);
+	bool set_interval(uint32_t id, unsigned long val);
+	bool set_batch_latency(uint32_t id, unsigned long val);
+	bool set_command(uint32_t id, std::string command, std::string value);
+	bool is_data_ready(void);
+	bool get_sensor_data(uint32_t id, sensor_data_t &data);
+	bool get_properties(uint32_t id, sensor_properties_s &properties);
 
 private:
+	int m_node_handle;
 	int m_x;
 	int m_y;
 	int m_z;
-	int m_node_handle;
 	unsigned long m_polling_interval;
 	unsigned long long m_fired_time;
 
@@ -63,5 +66,7 @@ private:
 
 	bool update_value_input_event(void);
 	bool update_value_iio(void);
+
+	void raw_to_base(sensor_data_t &data);
 };
 #endif /*_ACCEL_SENSOR_HAL_CLASS_H_*/

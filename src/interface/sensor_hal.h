@@ -136,6 +136,7 @@ public:
 	/* sensor fw read the data when is_data_ready() is true */
 	virtual bool is_data_ready() = 0;
 	virtual bool get_sensor_data(uint32_t id, sensor_data_t &data) = 0;
+	virtual int get_sensor_event(uint32_t id, sensor_event_t **event) = 0;
 
 	/* TODO: use get_sensors() instead of get_properties() */
 	virtual bool get_properties(uint32_t id, sensor_properties_s &properties) = 0;

@@ -38,6 +38,7 @@ public:
 	bool set_command(uint32_t id, std::string command, std::string value);
 	bool is_data_ready(void);
 	bool get_sensor_data(uint32_t id, sensor_data_t &data);
+	int get_sensor_event(uint32_t id, sensor_event_t **event);
 	bool get_properties(uint32_t id, sensor_properties_s &properties);
 
 private:

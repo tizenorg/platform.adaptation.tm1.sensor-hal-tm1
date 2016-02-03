@@ -370,6 +370,25 @@ bool accel_sensor_hal::get_sensor_data(uint32_t id, sensor_data_t &data)
 	return true;
 }
 
+int accel_sensor_hal::get_sensor_event(uint32_t id, sensor_event_t **event)
+{
+	sensor_event_t *sensor_event;
+	sensor_event = (sensor_event_t *)malloc(sizeof(sensor_event_t));
+
+	sensor_event->data.accuracy = SENSOR_ACCURACY_GOOD;
+	sensor_event->data.timestamp = m_fired_time;
+	sensor_event->data.value_count = 3;
+	sensor_event->data.values[0] = m_x;
+	sensor_event->data.values[1] = m_y;
+	sensor_event->data.values[2] = m_z;
+
+	raw_to_base(sensor_event->data);
+
+	*event = sensor_event;
+
+	return sizeof(sensor_event_t);
+}
+
 void accel_sensor_hal::raw_to_base(sensor_data_t &data)
 {
 	data.value_count = 3;

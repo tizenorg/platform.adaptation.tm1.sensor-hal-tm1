@@ -1,5 +1,5 @@
 /*
- * accel_sensor_hal
+ * accel_sensor_device
  *
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
@@ -21,7 +21,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <linux/input.h>
-#include <accel_sensor_hal.h>
+#include <accel_sensor_device.h>
 #include <sys/poll.h>
 
 #define GRAVITY 9.80665
@@ -55,20 +55,20 @@ static const sensor_handle_t handles[] = {
 	{
 		id: 0x1,
 		name: "Accelerometer",
-		type: SENSOR_HAL_TYPE_ACCELEROMETER,
-		event_type: (SENSOR_HAL_TYPE_ACCELEROMETER << 16) | 0x0001,
+		type: SENSOR_DEVICE_ACCELEROMETER,
+		event_type: (SENSOR_DEVICE_ACCELEROMETER << 16) | 0x0001,
 		properties : accel_properties
 	},
 	{
 		id: 0x2,
 		name: "Accelerometer RAW",
-		type: SENSOR_HAL_TYPE_ACCELEROMETER,
-		event_type: (SENSOR_HAL_TYPE_ACCELEROMETER << 16) | 0x0002,
+		type: SENSOR_DEVICE_ACCELEROMETER,
+		event_type: (SENSOR_DEVICE_ACCELEROMETER << 16) | 0x0002,
 		properties : accel_properties
 	}
 };
 
-accel_sensor_hal::accel_sensor_hal()
+accel_sensor_device::accel_sensor_device()
 : m_node_handle(-1)
 , m_x(-1)
 , m_y(-1)
@@ -104,18 +104,18 @@ accel_sensor_hal::accel_sensor_hal()
 		throw ENXIO;
 	}
 
-	INFO("accel_sensor_hal is created!\n");
+	INFO("accel_sensor_device is created!\n");
 }
 
-accel_sensor_hal::~accel_sensor_hal()
+accel_sensor_device::~accel_sensor_device()
 {
 	close(m_node_handle);
 	m_node_handle = -1;
 
-	INFO("accel_sensor_hal is destroyed!\n");
+	INFO("accel_sensor_device is destroyed!\n");
 }
 
-bool accel_sensor_hal::get_sensors(std::vector<sensor_handle_t> &sensors)
+bool accel_sensor_device::get_sensors(std::vector<sensor_handle_t> &sensors)
 {
 	int size = ARRAY_SIZE(handles);
 
@@ -125,7 +125,7 @@ bool accel_sensor_hal::get_sensors(std::vector<sensor_handle_t> &sensors)
 	return true;
 }
 
-bool accel_sensor_hal::enable(uint32_t id)
+bool accel_sensor_device::enable(uint32_t id)
 {
 	set_enable_node(m_enable_node, m_sensorhub_controlled, true, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
 	set_interval(id, m_polling_interval);
@@ -135,7 +135,7 @@ bool accel_sensor_hal::enable(uint32_t id)
 	return true;
 }
 
-bool accel_sensor_hal::disable(uint32_t id)
+bool accel_sensor_device::disable(uint32_t id)
 {
 	set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
 
@@ -143,12 +143,12 @@ bool accel_sensor_hal::disable(uint32_t id)
 	return true;
 }
 
-int accel_sensor_hal::get_poll_fd()
+int accel_sensor_device::get_poll_fd()
 {
 	return m_node_handle;
 }
 
-bool accel_sensor_hal::set_interval(uint32_t id, unsigned long val)
+bool accel_sensor_device::set_interval(uint32_t id, unsigned long val)
 {
 	unsigned long long polling_interval_ns;
 
@@ -164,24 +164,24 @@ bool accel_sensor_hal::set_interval(uint32_t id, unsigned long val)
 	return true;
 }
 
-bool accel_sensor_hal::set_batch_latency(uint32_t id, unsigned long val)
+bool accel_sensor_device::set_batch_latency(uint32_t id, unsigned long val)
 {
 	return false;
 }
 
-bool accel_sensor_hal::set_command(uint32_t id, std::string command, std::string value)
+bool accel_sensor_device::set_command(uint32_t id, std::string command, std::string value)
 {
 	return false;
 }
 
-bool accel_sensor_hal::is_data_ready(void)
+bool accel_sensor_device::is_data_ready(void)
 {
 	bool ret;
 	ret = update_value_input_event();
 	return ret;
 }
 
-bool accel_sensor_hal::update_value_input_event(void)
+bool accel_sensor_device::update_value_input_event(void)
 {
 	int accel_raw[3] = {0,};
 	bool x,y,z;
@@ -225,7 +225,7 @@ bool accel_sensor_hal::update_value_input_event(void)
 			}
 		} else if (accel_input.type == EV_SYN) {
 			syn = true;
-			fired_time = sensor_hal_base::get_timestamp(&accel_input.time);
+			fired_time = sensor_device_base::get_timestamp(&accel_input.time);
 		} else {
 			ERR("accel_input event[type = %d, code = %d] is unknown.", accel_input.type, accel_input.code);
 			return false;
@@ -251,7 +251,7 @@ bool accel_sensor_hal::update_value_input_event(void)
 	return true;
 }
 
-bool accel_sensor_hal::get_sensor_data(uint32_t id, sensor_data_t &data)
+bool accel_sensor_device::get_sensor_data(uint32_t id, sensor_data_t &data)
 {
 	data.accuracy = SENSOR_ACCURACY_GOOD;
 	data.timestamp = m_fired_time;
@@ -265,7 +265,7 @@ bool accel_sensor_hal::get_sensor_data(uint32_t id, sensor_data_t &data)
 	return true;
 }
 
-int accel_sensor_hal::get_sensor_event(uint32_t id, sensor_event_t **event)
+int accel_sensor_device::get_sensor_event(uint32_t id, sensor_event_t **event)
 {
 	sensor_event_t *sensor_event;
 	sensor_event = (sensor_event_t *)malloc(sizeof(sensor_event_t));
@@ -284,7 +284,7 @@ int accel_sensor_hal::get_sensor_event(uint32_t id, sensor_event_t **event)
 	return sizeof(sensor_event_t);
 }
 
-void accel_sensor_hal::raw_to_base(sensor_data_t &data)
+void accel_sensor_device::raw_to_base(sensor_data_t &data)
 {
 	data.value_count = 3;
 	data.values[0] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data.values[0] * RAW_DATA_UNIT);
@@ -292,7 +292,7 @@ void accel_sensor_hal::raw_to_base(sensor_data_t &data)
 	data.values[2] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data.values[2] * RAW_DATA_UNIT);
 }
 
-bool accel_sensor_hal::get_properties(uint32_t id, sensor_properties_s &properties)
+bool accel_sensor_device::get_properties(uint32_t id, sensor_properties_s &properties)
 {
 	properties.name = MODEL_NAME;
 	properties.vendor = VENDOR;

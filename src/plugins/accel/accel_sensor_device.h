@@ -1,5 +1,5 @@
 /*
- * proxi_sensor_hal
+ * accel_sensor_device
  *
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
@@ -17,22 +17,22 @@
  *
  */
 
-#ifndef _PROXI_SENSOR_HAL_H_
-#define _PROXI_SENSOR_HAL_H_
+#ifndef _ACCEL_SENSOR_DEVICE_H_
+#define _ACCEL_SENSOR_DEVICE_H_
 
-#include <sensor_hal_base.h>
+#include <sensor_device_base.h>
 
-class proxi_sensor_hal : public sensor_hal_base
+class accel_sensor_device : public sensor_device_base
 {
 public:
-	proxi_sensor_hal();
-	virtual ~proxi_sensor_hal();
+	accel_sensor_device();
+	virtual ~accel_sensor_device();
 
 	int get_poll_fd(void);
 	bool get_sensors(std::vector<sensor_handle_t> &sensors);
 	bool enable(uint32_t id);
 	bool disable(uint32_t id);
-	bool set_interval(uint32_t id, unsigned long ms_interval);
+	bool set_interval(uint32_t id, unsigned long val);
 	bool set_batch_latency(uint32_t id, unsigned long val);
 	bool set_command(uint32_t id, std::string command, std::string value);
 	bool is_data_ready(void);
@@ -42,13 +42,18 @@ public:
 
 private:
 	int m_node_handle;
-	unsigned int m_state;
+	int m_x;
+	int m_y;
+	int m_z;
+	unsigned long m_polling_interval;
 	unsigned long long m_fired_time;
 	bool m_sensorhub_controlled;
 
 	std::string m_data_node;
 	std::string m_enable_node;
+	std::string m_interval_node;
 
-	bool update_value(void);
+	bool update_value_input_event(void);
+	void raw_to_base(sensor_data_t &data);
 };
-#endif /*_PROXI_SENSOR_HAL_H_*/
+#endif /*_ACCEL_SENSOR_DEVICE_CLASS_H_*/

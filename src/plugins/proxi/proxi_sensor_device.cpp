@@ -1,5 +1,5 @@
 /*
- * proxi_sensor_hal
+ * proxi_sensor_device
  *
  * Copyright (c) 2014 Samsung Electronics Co., Ltd.
  *
@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <linux/input.h>
-#include <proxi_sensor_hal.h>
+#include <proxi_sensor_device.h>
 
 #define MODEL_NAME "K2HH"
 #define VENDOR "ST Microelectronics"
@@ -46,13 +46,13 @@ static const sensor_handle_t handles[] = {
 	{
 		id: 0x1,
 		name: "Proximity Sensor",
-		type: SENSOR_HAL_TYPE_PROXIMITY,
-		event_type: (SENSOR_HAL_TYPE_PROXIMITY << 16) | 0x0001,
+		type: SENSOR_DEVICE_PROXIMITY,
+		event_type: (SENSOR_DEVICE_PROXIMITY << 16) | 0x0001,
 		properties : proxi_properties
 	}
 };
 
-proxi_sensor_hal::proxi_sensor_hal()
+proxi_sensor_device::proxi_sensor_device()
 : m_node_handle(-1)
 , m_state(-1)
 , m_fired_time(0)
@@ -84,18 +84,18 @@ proxi_sensor_hal::proxi_sensor_hal()
 		throw ENXIO;
 	}
 
-	INFO("Proxi_sensor_hal is created!\n");
+	INFO("Proxi_sensor_device is created!\n");
 }
 
-proxi_sensor_hal::~proxi_sensor_hal()
+proxi_sensor_device::~proxi_sensor_device()
 {
 	close(m_node_handle);
 	m_node_handle = -1;
 
-	INFO("Proxi_sensor_hal is destroyed!\n");
+	INFO("Proxi_sensor_device is destroyed!\n");
 }
 
-bool proxi_sensor_hal::get_sensors(std::vector<sensor_handle_t> &sensors)
+bool proxi_sensor_device::get_sensors(std::vector<sensor_handle_t> &sensors)
 {
 	int size = ARRAY_SIZE(handles);
 
@@ -105,7 +105,7 @@ bool proxi_sensor_hal::get_sensors(std::vector<sensor_handle_t> &sensors)
 	return true;
 }
 
-bool proxi_sensor_hal::enable(uint32_t id)
+bool proxi_sensor_device::enable(uint32_t id)
 {
 	set_enable_node(m_enable_node, m_sensorhub_controlled, true, SENSORHUB_PROXIMITY_ENABLE_BIT);
 
@@ -114,7 +114,7 @@ bool proxi_sensor_hal::enable(uint32_t id)
 	return true;
 }
 
-bool proxi_sensor_hal::disable(uint32_t id)
+bool proxi_sensor_device::disable(uint32_t id)
 {
 	set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_PROXIMITY_ENABLE_BIT);
 
@@ -122,34 +122,34 @@ bool proxi_sensor_hal::disable(uint32_t id)
 	return true;
 }
 
-int proxi_sensor_hal::get_poll_fd()
+int proxi_sensor_device::get_poll_fd()
 {
 	return m_node_handle;
 }
 
-bool proxi_sensor_hal::set_interval(uint32_t id, unsigned long interval_ms)
+bool proxi_sensor_device::set_interval(uint32_t id, unsigned long interval_ms)
 {
 	return true;
 }
 
-bool proxi_sensor_hal::set_batch_latency(uint32_t id, unsigned long val)
+bool proxi_sensor_device::set_batch_latency(uint32_t id, unsigned long val)
 {
 	return false;
 }
 
-bool proxi_sensor_hal::set_command(uint32_t id, std::string command, std::string value)
+bool proxi_sensor_device::set_command(uint32_t id, std::string command, std::string value)
 {
 	return false;
 }
 
-bool proxi_sensor_hal::is_data_ready(void)
+bool proxi_sensor_device::is_data_ready(void)
 {
 	bool ret;
 	ret = update_value();
 	return ret;
 }
 
-bool proxi_sensor_hal::update_value(void)
+bool proxi_sensor_device::update_value(void)
 {
 	struct input_event proxi_event;
 	DBG("proxi event detection!");
@@ -163,7 +163,7 @@ bool proxi_sensor_hal::update_value(void)
 
 	if ((proxi_event.type == EV_ABS) && (proxi_event.code == ABS_DISTANCE)) {
 		m_state = proxi_event.value;
-		m_fired_time = sensor_hal_base::get_timestamp(&proxi_event.time);
+		m_fired_time = sensor_device_base::get_timestamp(&proxi_event.time);
 
 		DBG("m_state = %d, time = %lluus", m_state, m_fired_time);
 
@@ -173,7 +173,7 @@ bool proxi_sensor_hal::update_value(void)
 	return false;
 }
 
-bool proxi_sensor_hal::get_sensor_data(uint32_t id, sensor_data_t &data)
+bool proxi_sensor_device::get_sensor_data(uint32_t id, sensor_data_t &data)
 {
 	data.accuracy = SENSOR_ACCURACY_UNDEFINED;
 	data.timestamp = m_fired_time;
@@ -183,7 +183,7 @@ bool proxi_sensor_hal::get_sensor_data(uint32_t id, sensor_data_t &data)
 	return true;
 }
 
-int proxi_sensor_hal::get_sensor_event(uint32_t id, sensor_event_t **event)
+int proxi_sensor_device::get_sensor_event(uint32_t id, sensor_event_t **event)
 {
 	sensor_event_t *sensor_event;
 	sensor_event = (sensor_event_t *)malloc(sizeof(sensor_event_t));
@@ -198,7 +198,7 @@ int proxi_sensor_hal::get_sensor_event(uint32_t id, sensor_event_t **event)
 	return sizeof(sensor_event_t);
 }
 
-bool proxi_sensor_hal::get_properties(uint32_t id, sensor_properties_s &properties)
+bool proxi_sensor_device::get_properties(uint32_t id, sensor_properties_s &properties)
 {
 	properties.name = MODEL_NAME;
 	properties.vendor = VENDOR;

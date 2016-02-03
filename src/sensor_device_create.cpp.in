@@ -1,0 +1,152 @@
+#ifdef ENABLE_ACCEL
+#include <accel_sensor_device.h>
+#endif
+#ifdef ENABLE_BIO_LED_RED
+#include <bio_led_red_sensor_device.h>
+#endif
+#ifdef ENABLE_GEO
+#include <geo_sensor_device.h>
+#endif
+#ifdef ENABLE_GYRO
+#include <gyro_sensor_device.h>
+#endif
+#ifdef ENABLE_LIGHT
+#include <light_sensor_device.h>
+#endif
+#ifdef ENABLE_PRESSURE
+#include <pressure_sensor_device.h>
+#endif
+#ifdef ENABLE_PROXI
+#include <proxi_sensor_device.h>
+#endif
+#ifdef ENABLE_RV_RAW
+#include <rv_raw_sensor_device.h>
+#endif
+#ifdef ENABLE_TEMPERATURE
+#include <temperature_sensor_device.h>
+#endif
+#ifdef ENABLE_ULTRAVIOLET
+#include <ultraviolet_sensor_device.h>
+#endif
+
+#include <sensor_common.h>
+
+extern "C" sensor_devices* create(void)
+{
+	sensor_devices *devices = new(std::nothrow) sensor_devices;
+	retvm_if(!devices, NULL, "Failed to allocate memory");
+
+#ifdef ENABLE_ACCEL
+	accel_sensor_device *accel_sensor = NULL;
+	try {
+		accel_sensor = new(std::nothrow) accel_sensor_device;
+	} catch (int err) {
+		ERR("Failed to create accel_sensor_device devices, err: %d, cause: %s", err, strerror(err));
+	}
+
+	if (accel_sensor != NULL) {
+		devices->devices.push_back(accel_sensor);
+	}
+#endif
+
+#ifdef ENABLE_BIO_LED_RED
+	bio_led_red_sensor_device *bio_led_red_sensor = NULL;
+	try {
+		bio_led_red_sensor = new(std::nothrow) bio_led_red_sensor_device;
+	} catch (int err) {
+		ERR("Failed to create bio_led_red_sensor_device devices, err: %d, cause: %s", err, strerror(err));
+	}
+	if (bio_led_red_sensor != NULL)
+		devices->devices.push_back(bio_led_red_sensor);
+#endif
+
+#ifdef ENABLE_GEO
+	geo_sensor_device *geo_sensor = NULL;
+	try {
+		geo_sensor = new(std::nothrow) geo_sensor_device;
+	} catch (int err) {
+		ERR("Failed to create geo_sensor_device devices, err: %d, cause: %s", err, strerror(err));
+	}
+	if (geo_sensor != NULL)
+		devices->devices.push_back(geo_sensor);
+#endif
+
+#ifdef ENABLE_GYRO
+	gyro_sensor_device *gyro_sensor = NULL;
+	try {
+		gyro_sensor = new(std::nothrow) gyro_sensor_device;
+	} catch (int err) {
+		ERR("Failed to create gyro_sensor_device devices, err: %d, cause: %s", err, strerror(err));
+	}
+	if (gyro_sensor != NULL)
+		devices->devices.push_back(gyro_sensor);
+#endif
+
+#ifdef ENABLE_LIGHT
+	light_sensor_device *light_sensor = NULL;
+	try {
+		light_sensor = new(std::nothrow) light_sensor_device;
+	} catch (int err) {
+		ERR("Failed to create light_sensor_device devices, err: %d, cause: %s", err, strerror(err));
+	}
+	if (light_sensor != NULL)
+		devices->devices.push_back(light_sensor);
+#endif
+
+#ifdef ENABLE_PRESSURE
+	pressure_sensor_device *pressure_sensor = NULL;
+	try {
+		pressure_sensor = new(std::nothrow) pressure_sensor_device;
+	} catch (int err) {
+		ERR("Failed to create pressure_sensor_device devices, err: %d, cause: %s", err, strerror(err));
+	}
+	if (pressure_sensor != NULL)
+		devices->devices.push_back(pressure_sensor);
+#endif
+
+#ifdef ENABLE_PROXI
+	proxi_sensor_device *proxi_sensor = NULL;
+	try {
+		proxi_sensor = new(std::nothrow) proxi_sensor_device;
+	} catch (int err) {
+		ERR("Failed to create proxi_sensor_device devices, err: %d, cause: %s", err, strerror(err));
+	}
+	if (proxi_sensor != NULL)
+		devices->devices.push_back(proxi_sensor);
+#endif
+
+#ifdef ENABLE_RV_RAW
+	rv_raw_sensor_device *rv_raw_sensor = NULL;
+	try {
+		rv_raw_sensor = new(std::nothrow) rv_raw_sensor_device;
+	} catch (int err) {
+		ERR("Failed to create rv_raw_sensor_device devices, err: %d, cause: %s", err, strerror(err));
+	}
+	if (rv_raw_sensor != NULL)
+		devices->devices.push_back(rv_raw_sensor);
+#endif
+
+#ifdef ENABLE_TEMPERATURE
+	temperature_sensor_device *temperature_sensor = NULL;
+	try {
+		temperature_sensor = new(std::nothrow) temperature_sensor_device;
+	} catch (int err) {
+		ERR("Failed to create temperature_sensor_device devices, err: %d, cause: %s", err, strerror(err));
+	}
+	if (temperature_sensor != NULL)
+		devices->devices.push_back(temperature_sensor);
+#endif
+
+#ifdef ENABLE_ULTRAVIOLET
+	ultraviolet_sensor_device *ultraviolet_sensor = NULL;
+	try {
+		ultraviolet_sensor = new(std::nothrow) ultraviolet_sensor_device;
+	} catch (int err) {
+		ERR("Failed to create ultraviolet_sensor_device devices, err: %d, cause: %s", err, strerror(err));
+	}
+	if (ultraviolet_sensor != NULL)
+		devices->devices.push_back(ultraviolet_sensor);
+#endif
+
+	return devices;
+}

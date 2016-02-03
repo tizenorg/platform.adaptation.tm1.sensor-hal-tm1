@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef _SENSOR_HAL_BASE_H_
-#define _SENSOR_HAL_BASE_H_
+#ifndef _SENSOR_DEVICE_BASE_H_
+#define _SENSOR_DEVICE_BASE_H_
 #include <sys/time.h>
 #include <sensor_logs.h>
 #include <string>
@@ -63,11 +63,11 @@ typedef struct {
 	std::string prefix;
 } input_method_info;
 
-class sensor_hal_base : public sensor_hal
+class sensor_device_base : public sensor_device
 {
 public:
-	sensor_hal_base();
-	virtual ~sensor_hal_base();
+	sensor_device_base();
+	virtual ~sensor_device_base();
 
 protected:
 	bool set_enable_node(const std::string &node_path, bool sensorhub_controlled, bool enable, int enable_bit = 0);
@@ -89,4 +89,4 @@ private:
 	static bool get_input_event_node_info(const std::string& device_num, node_info &info);
 	static bool get_sensorhub_input_event_node_info(const std::string &interval_node_name, const std::string& device_num, node_info &info);
 };
-#endif /*_SENSOR_HAL_BASE_H_*/
+#endif /*_SENSOR_DEVICE_BASE_H_*/

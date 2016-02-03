@@ -14,7 +14,6 @@ ExcludeArch: %{arm} aarch64 %ix86 x86_64
 
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
-BuildRequires:  pkgconfig(libxml-2.0)
 
 %define accel_state ON
 %define gyro_state OFF
@@ -55,5 +54,4 @@ rm -rf %{buildroot}
 
 %files
 %manifest packaging/%{name}.manifest
-%attr(0644,root,root)/usr/etc/sensors.xml
 %{_libdir}/sensor/*.so

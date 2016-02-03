@@ -21,7 +21,6 @@
 #define _ACCEL_SENSOR_HAL_H_
 
 #include <sensor_hal_base.h>
-#include <functional>
 
 class accel_sensor_hal : public sensor_hal_base
 {
@@ -48,26 +47,13 @@ private:
 	int m_z;
 	unsigned long m_polling_interval;
 	unsigned long long m_fired_time;
+	bool m_sensorhub_controlled;
 
-	std::string m_model_id;
-	std::string m_vendor;
-	std::string m_chip_name;
-
-	int m_resolution;
-	float m_raw_data_unit;
-
-	int m_method;
 	std::string m_data_node;
 	std::string m_enable_node;
 	std::string m_interval_node;
 
-	std::function<bool ()> update_value;
-
-	bool m_sensorhub_controlled;
-
 	bool update_value_input_event(void);
-	bool update_value_iio(void);
-
 	void raw_to_base(sensor_data_t &data);
 };
 #endif /*_ACCEL_SENSOR_HAL_CLASS_H_*/

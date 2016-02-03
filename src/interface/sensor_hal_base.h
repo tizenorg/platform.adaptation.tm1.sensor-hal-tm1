@@ -74,7 +74,6 @@ protected:
 
 	static unsigned long long get_timestamp(void);
 	static unsigned long long get_timestamp(timeval *t);
-	static bool find_model_id(const std::string &sensor_type, std::string &model_id);
 	static bool is_sensorhub_controlled(const std::string &key);
 	static bool get_node_info(const node_info_query &query, node_info &info);
 	static void show_node_info(node_info &info);

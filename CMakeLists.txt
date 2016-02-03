@@ -15,10 +15,5 @@ add_definitions(-DLIBDIR="${CMAKE_INSTALL_LIBDIR}")
 # Internal Debugging Options
 #add_definitions(-Wall -g -D_DEBUG)
 
-# Installing files
-CONFIGURE_FILE(sensors.xml.in sensors.xml @ONLY)
-
-INSTALL(FILES sensors.xml DESTINATION etc)
-
 # Sub-directory
 add_subdirectory(src)

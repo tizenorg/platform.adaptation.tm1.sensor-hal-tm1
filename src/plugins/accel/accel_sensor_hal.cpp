@@ -21,12 +21,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <linux/input.h>
-#include <csensor_config.h>
 #include <accel_sensor_hal.h>
 #include <sys/poll.h>
-
-using std::ifstream;
-using std::string;
 
 #define GRAVITY 9.80665
 #define G_TO_MG 1000
@@ -36,29 +32,39 @@ using std::string;
 #define MIN_RANGE(RES) (-((1 << (RES))/2))
 #define MAX_RANGE(RES) (((1 << (RES))/2)-1)
 
-#define SENSOR_TYPE_ACCEL		"ACCEL"
-#define ELEMENT_NAME			"NAME"
-#define ELEMENT_VENDOR			"VENDOR"
-#define ELEMENT_RAW_DATA_UNIT	"RAW_DATA_UNIT"
-#define ELEMENT_RESOLUTION		"RESOLUTION"
+#define MODEL_NAME "K2HH"
+#define VENDOR "ST Microelectronics"
+#define RESOLUTION 16
+#define RAW_DATA_UNIT 0.122
+#define MIN_INTERVAL 1
+#define FIFO_COUNT 0
+#define MAX_BATCH_COUNT 0
 
-#define ATTR_VALUE				"value"
-
-#define INPUT_NAME	"accelerometer_sensor"
-#define ACCEL_SENSORHUB_POLL_NODE_NAME "accel_poll_delay"
+static const sensor_properties_s accel_properties = {
+	name : MODEL_NAME,
+	vendor : VENDOR,
+	min_range : MIN_RANGE(RESOLUTION) * RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
+	max_range : MAX_RANGE(RESOLUTION) * RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
+	resolution : RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
+	min_interval : MIN_INTERVAL,
+	fifo_count : FIFO_COUNT,
+	max_batch_count : MAX_BATCH_COUNT,
+};
 
 static const sensor_handle_t handles[] = {
 	{
 		id: 0x1,
 		name: "Accelerometer",
 		type: SENSOR_HAL_TYPE_ACCELEROMETER,
-		event_type: (SENSOR_HAL_TYPE_ACCELEROMETER << 16) | 0x0001
+		event_type: (SENSOR_HAL_TYPE_ACCELEROMETER << 16) | 0x0001,
+		properties : accel_properties
 	},
 	{
 		id: 0x2,
 		name: "Accelerometer RAW",
 		type: SENSOR_HAL_TYPE_ACCELEROMETER,
-		event_type: (SENSOR_HAL_TYPE_ACCELEROMETER << 16) | 0x0002
+		event_type: (SENSOR_HAL_TYPE_ACCELEROMETER << 16) | 0x0002,
+		properties : accel_properties
 	}
 };
 
@@ -69,20 +75,15 @@ accel_sensor_hal::accel_sensor_hal()
 , m_z(-1)
 , m_polling_interval(0)
 , m_fired_time(0)
+, m_sensorhub_controlled(false)
 {
-	const string sensorhub_interval_node_name = "accel_poll_delay";
-	csensor_config &config = csensor_config::get_instance();
+	const std::string sensorhub_interval_node_name = "accel_poll_delay";
 
 	node_info_query query;
 	node_info info;
 
-	if (!find_model_id(SENSOR_TYPE_ACCEL, m_model_id)) {
-		ERR("Failed to find model id");
-		throw ENXIO;
-	}
-
 	query.sensorhub_controlled = m_sensorhub_controlled = is_sensorhub_controlled(sensorhub_interval_node_name);
-	query.sensor_type = SENSOR_TYPE_ACCEL;
+	query.sensor_type = "ACCEL";
 	query.key = "accelerometer_sensor";
 	query.iio_enable_node_name = "accel_enable";
 	query.sensorhub_interval_node_name = sensorhub_interval_node_name;
@@ -94,69 +95,13 @@ accel_sensor_hal::accel_sensor_hal()
 
 	show_node_info(info);
 
-	m_method = info.method;
 	m_data_node = info.data_node_path;
 	m_enable_node = info.enable_node_path;
 	m_interval_node = info.interval_node_path;
 
-	if (!config.get(SENSOR_TYPE_ACCEL, m_model_id, ELEMENT_VENDOR, m_vendor)) {
-		ERR("[VENDOR] is empty\n");
-		throw ENXIO;
-	}
-
-	INFO("m_vendor = %s", m_vendor.c_str());
-
-	if (!config.get(SENSOR_TYPE_ACCEL, m_model_id, ELEMENT_NAME, m_chip_name)) {
-		ERR("[NAME] is empty\n");
-		throw ENXIO;
-	}
-
-	INFO("m_chip_name = %s\n",m_chip_name.c_str());
-
-	long resolution;
-
-	if (!config.get(SENSOR_TYPE_ACCEL, m_model_id, ELEMENT_RESOLUTION, resolution)) {
-		ERR("[RESOLUTION] is empty\n");
-		throw ENXIO;
-	}
-
-	m_resolution = (int)resolution;
-
-	INFO("m_resolution = %d\n",m_resolution);
-
-	double raw_data_unit;
-
-	if (!config.get(SENSOR_TYPE_ACCEL, m_model_id, ELEMENT_RAW_DATA_UNIT, raw_data_unit)) {
-		ERR("[RAW_DATA_UNIT] is empty\n");
-		throw ENXIO;
-	}
-
-	m_raw_data_unit = (float)(raw_data_unit);
-	INFO("m_raw_data_unit = %f\n", m_raw_data_unit);
-
 	if ((m_node_handle = open(m_data_node.c_str(), O_RDWR)) < 0) {
 		ERR("accel handle open fail for accel processor, error:%s\n", strerror(errno));
 		throw ENXIO;
-	}
-
-	if (m_method == INPUT_EVENT_METHOD) {
-		int clockId = CLOCK_MONOTONIC;
-		if (ioctl(m_node_handle, EVIOCSCLOCKID, &clockId) != 0)
-			ERR("Fail to set monotonic timestamp for %s", m_data_node.c_str());
-
-		update_value = [=]() {
-			return this->update_value_input_event();
-		};
-	} else {
-		if (!info.buffer_length_node_path.empty())
-			set_node_value(info.buffer_length_node_path, 480);
-
-		if (!info.buffer_enable_node_path.empty())
-			set_node_value(info.buffer_enable_node_path, 1);
-
-		update_value = [=]() {
-			return this->update_value_iio();
-		};
 	}
 
 	INFO("accel_sensor_hal is created!\n");
@@ -186,7 +131,7 @@ bool accel_sensor_hal::enable(uint32_t id)
 	set_interval(id, m_polling_interval);
 
 	m_fired_time = 0;
-	INFO("Accel sensor real starting");
+	INFO("Enable accelerometer sensor");
 	return true;
 }
 
@@ -194,7 +139,7 @@ bool accel_sensor_hal::disable(uint32_t id)
 {
 	set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
 
-	INFO("Accel sensor real stopping");
+	INFO("Disable accelerometer sensor");
 	return true;
 }
 
@@ -232,7 +177,7 @@ bool accel_sensor_hal::set_command(uint32_t id, std::string command, std::string
 bool accel_sensor_hal::is_data_ready(void)
 {
 	bool ret;
-	ret = update_value();
+	ret = update_value_input_event();
 	return ret;
 }
 
@@ -306,56 +251,6 @@ bool accel_sensor_hal::update_value_input_event(void)
 	return true;
 }
 
-bool accel_sensor_hal::update_value_iio(void)
-{
-	const int READ_LEN = 14;
-	char data[READ_LEN] = {0,};
-
-	struct pollfd pfd;
-
-	pfd.fd = m_node_handle;
-	pfd.events = POLLIN | POLLERR;
-	pfd.revents = 0;
-
-	int ret = poll(&pfd, 1, -1);
-
-	if (ret == -1) {
-		ERR("poll error:%s m_node_handle:d", strerror(errno), m_node_handle);
-		return false;
-	} else if (!ret) {
-		ERR("poll timeout m_node_handle:%d", m_node_handle);
-		return false;
-	}
-
-	if (pfd.revents & POLLERR) {
-		ERR("poll exception occurred! m_node_handle:%d", m_node_handle);
-		return false;
-	}
-
-	if (!(pfd.revents & POLLIN)) {
-		ERR("poll nothing to read! m_node_handle:%d, pfd.revents = %d", m_node_handle, pfd.revents);
-		return false;
-	}
-
-	int len = read(m_node_handle, data, sizeof(data));
-
-	if (len != sizeof(data)) {
-		ERR("Failed to read data, m_node_handle:%d read_len:%d", m_node_handle, len);
-		return false;
-	}
-
-	short *short_data = (short *)(data);
-	m_x = *(short_data);
-	m_y = *((short *)(data + 2));
-	m_z = *((short *)(data + 4));
-
-	m_fired_time = *((long long*)(data + 6));
-
-	INFO("m_x = %d, m_y = %d, m_z = %d, time = %lluus", m_x, m_y, m_z, m_fired_time);
-
-	return true;
-}
-
 bool accel_sensor_hal::get_sensor_data(uint32_t id, sensor_data_t &data)
 {
 	data.accuracy = SENSOR_ACCURACY_GOOD;
@@ -392,20 +287,20 @@ int accel_sensor_hal::get_sensor_event(uint32_t id, sensor_event_t **event)
 void accel_sensor_hal::raw_to_base(sensor_data_t &data)
 {
 	data.value_count = 3;
-	data.values[0] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data.values[0] * m_raw_data_unit);
-	data.values[1] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data.values[1] * m_raw_data_unit);
-	data.values[2] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data.values[2] * m_raw_data_unit);
+	data.values[0] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data.values[0] * RAW_DATA_UNIT);
+	data.values[1] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data.values[1] * RAW_DATA_UNIT);
+	data.values[2] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data.values[2] * RAW_DATA_UNIT);
 }
 
 bool accel_sensor_hal::get_properties(uint32_t id, sensor_properties_s &properties)
 {
-	properties.name = m_chip_name;
-	properties.vendor = m_vendor;
-	properties.min_range = MIN_RANGE(m_resolution)* RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(m_raw_data_unit);
-	properties.max_range = MAX_RANGE(m_resolution)* RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(m_raw_data_unit);
-	properties.min_interval = 1;
-	properties.resolution = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(m_raw_data_unit);
-	properties.fifo_count = 0;
-	properties.max_batch_count = 0;
+	properties.name = MODEL_NAME;
+	properties.vendor = VENDOR;
+	properties.min_range = accel_properties.min_range;
+	properties.max_range = accel_properties.max_range;
+	properties.min_interval = accel_properties.min_interval;
+	properties.resolution = accel_properties.resolution;
+	properties.fifo_count = accel_properties.fifo_count;
+	properties.max_batch_count = accel_properties.max_batch_count;
 	return true;
 }

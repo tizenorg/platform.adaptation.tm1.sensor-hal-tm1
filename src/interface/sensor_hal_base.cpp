@@ -21,7 +21,6 @@
 #include <dirent.h>
 #include <string.h>
 #include <fstream>
-#include <csensor_config.h>
 
 using std::ifstream;
 using std::ofstream;
@@ -227,48 +226,6 @@ bool sensor_hal_base::set_enable_node(const string &node_path, bool sensorhub_co
 	}
 
 	return true;
-}
-
-
-bool sensor_hal_base::find_model_id(const string &sensor_type, string &model_id)
-{
-	string dir_path = "/sys/class/sensors/";
-	string name_node, name;
-	string d_name;
-	DIR *dir = NULL;
-	struct dirent *dir_entry = NULL;
-	bool find = false;
-
-	dir = opendir(dir_path.c_str());
-	if (!dir) {
-		DBG("Failed to open dir: %s", dir_path.c_str());
-		return false;
-	}
-
-	while (!find && (dir_entry = readdir(dir))) {
-		d_name = string(dir_entry->d_name);
-
-		if ((d_name != ".") && (d_name != "..") && (dir_entry->d_ino != 0)) {
-			name_node = dir_path + d_name + string("/name");
-
-			ifstream infile(name_node.c_str());
-
-			if (!infile)
-				continue;
-
-			infile >> name;
-
-			if (csensor_config::get_instance().is_supported(sensor_type, name)) {
-				model_id = name;
-				find = true;
-				break;
-			}
-		}
-	}
-
-	closedir(dir);
-
-	return find;
 }
 
 bool sensor_hal_base::get_event_num(const string &input_path, string &event_num)

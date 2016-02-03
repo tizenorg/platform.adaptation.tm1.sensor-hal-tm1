@@ -44,15 +44,10 @@ private:
 	int m_node_handle;
 	unsigned int m_state;
 	unsigned long long m_fired_time;
-
-	std::string m_model_id;
-	std::string m_vendor;
-	std::string m_chip_name;
+	bool m_sensorhub_controlled;
 
 	std::string m_data_node;
 	std::string m_enable_node;
-
-	bool m_sensorhub_controlled;
 
 	bool update_value(void);
 };

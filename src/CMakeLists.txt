@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 project(sensor-plugins-tm1 CXX)
 
 INCLUDE(FindPkgConfig)
-PKG_CHECK_MODULES(plugin_pkgs REQUIRED dlog libxml-2.0)
+PKG_CHECK_MODULES(plugin_pkgs REQUIRED dlog)
 
 FOREACH(flag ${plugin_pkgs_LDFLAGS})
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
@@ -74,7 +74,6 @@ configure_file(hal_module_create.cpp.in hal_module_create.cpp)
 add_library(${PROJECT_NAME} SHARED
 	${SRCS}
 	lib/cconfig.cpp
-	lib/csensor_config.cpp
 	lib/sensor_logs.cpp
 	interface/sensor_hal_base.cpp
 	interface/sensor_hal.h

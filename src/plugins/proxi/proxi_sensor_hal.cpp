@@ -20,37 +20,51 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <linux/input.h>
-#include <csensor_config.h>
 #include <proxi_sensor_hal.h>
-#include <sys/ioctl.h>
-#include <fstream>
 
-using std::string;
-using std::ifstream;
+#define MODEL_NAME "K2HH"
+#define VENDOR "ST Microelectronics"
+#define MIN_RANGE 0
+#define MAX_RANGE 5
+#define RESOLUTION 1
+#define MIN_INTERVAL 1
+#define FIFO_COUNT 0
+#define MAX_BATCH_COUNT 0
 
-#define SENSOR_TYPE_PROXI		"PROXI"
-#define ELEMENT_NAME 			"NAME"
-#define ELEMENT_VENDOR			"VENDOR"
-#define ATTR_VALUE 				"value"
+static const sensor_properties_s proxi_properties = {
+	name : MODEL_NAME,
+	vendor : VENDOR,
+	min_range : MIN_RANGE,
+	max_range : MAX_RANGE,
+	resolution : RESOLUTION,
+	min_interval : MIN_INTERVAL,
+	fifo_count : FIFO_COUNT,
+	max_batch_count : MAX_BATCH_COUNT,
+};
+
+static const sensor_handle_t handles[] = {
+	{
+		id: 0x1,
+		name: "Proximity Sensor",
+		type: SENSOR_HAL_TYPE_PROXIMITY,
+		event_type: (SENSOR_HAL_TYPE_PROXIMITY << 16) | 0x0001,
+		properties : proxi_properties
+	}
+};
 
 proxi_sensor_hal::proxi_sensor_hal()
 : m_node_handle(-1)
 , m_state(-1)
 , m_fired_time(0)
+, m_sensorhub_controlled(false)
 {
-	const string sensorhub_interval_node_name = "prox_poll_delay";
-	csensor_config &config = csensor_config::get_instance();
+	const std::string sensorhub_interval_node_name = "prox_poll_delay";
 
 	node_info_query query;
 	node_info info;
 
-	if (!find_model_id(SENSOR_TYPE_PROXI, m_model_id)) {
-		ERR("Failed to find model id");
-		throw ENXIO;
-	}
-
 	query.sensorhub_controlled = m_sensorhub_controlled = is_sensorhub_controlled(sensorhub_interval_node_name);
-	query.sensor_type = SENSOR_TYPE_PROXI;
+	query.sensor_type = "PROXI";
 	query.key = "proximity_sensor";
 	query.iio_enable_node_name = "proximity_enable";
 	query.sensorhub_interval_node_name = sensorhub_interval_node_name;
@@ -65,28 +79,10 @@ proxi_sensor_hal::proxi_sensor_hal()
 	m_data_node = info.data_node_path;
 	m_enable_node = info.enable_node_path;
 
-	if (!config.get(SENSOR_TYPE_PROXI, m_model_id, ELEMENT_VENDOR, m_vendor)) {
-		ERR("[VENDOR] is empty\n");
-		throw ENXIO;
-	}
-
-	INFO("m_vendor = %s", m_vendor.c_str());
-
-	if (!config.get(SENSOR_TYPE_PROXI, m_model_id, ELEMENT_NAME, m_chip_name)) {
-		ERR("[NAME] is empty\n");
-		throw ENXIO;
-	}
-
-	INFO("m_chip_name = %s\n",m_chip_name.c_str());
-
 	if ((m_node_handle = open(m_data_node.c_str(), O_RDWR)) < 0) {
-		ERR("Proxi handle(%d) open fail", m_node_handle);
+		ERR("accel handle open fail for accel processor, error:%s\n", strerror(errno));
 		throw ENXIO;
 	}
-
-	int clockId = CLOCK_MONOTONIC;
-	if (ioctl(m_node_handle, EVIOCSCLOCKID, &clockId) != 0)
-		ERR("Fail to set monotonic timestamp for %s", m_data_node.c_str());
 
 	INFO("Proxi_sensor_hal is created!\n");
 }
@@ -101,13 +97,11 @@ proxi_sensor_hal::~proxi_sensor_hal()
 
 bool proxi_sensor_hal::get_sensors(std::vector<sensor_handle_t> &sensors)
 {
-	sensor_handle_t handle;
-	handle.id = 0x1;
-	handle.name = "Proximity Sensor";
-	handle.type = SENSOR_HAL_TYPE_PROXIMITY;
-	handle.event_type = SENSOR_HAL_TYPE_PROXIMITY << 16 | 0x0001;
+	int size = ARRAY_SIZE(handles);
 
-	sensors.push_back(handle);
+	for (int i = 0; i < size; ++i)
+		sensors.push_back(handles[i]);
+
 	return true;
 }
 
@@ -116,7 +110,7 @@ bool proxi_sensor_hal::enable(uint32_t id)
 	set_enable_node(m_enable_node, m_sensorhub_controlled, true, SENSORHUB_PROXIMITY_ENABLE_BIT);
 
 	m_fired_time = 0;
-	INFO("Proxi sensor real starting");
+	INFO("Enable proximity sensor");
 	return true;
 }
 
@@ -124,7 +118,7 @@ bool proxi_sensor_hal::disable(uint32_t id)
 {
 	set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_PROXIMITY_ENABLE_BIT);
 
-	INFO("Proxi sensor real stopping");
+	INFO("Disable proximity sensor");
 	return true;
 }
 
@@ -148,10 +142,17 @@ bool proxi_sensor_hal::set_command(uint32_t id, std::string command, std::string
 	return false;
 }
 
+bool proxi_sensor_hal::is_data_ready(void)
+{
+	bool ret;
+	ret = update_value();
+	return ret;
+}
+
 bool proxi_sensor_hal::update_value(void)
 {
 	struct input_event proxi_event;
-	INFO("proxi event detection!");
+	DBG("proxi event detection!");
 
 	int len = read(m_node_handle, &proxi_event, sizeof(proxi_event));
 
@@ -160,21 +161,16 @@ bool proxi_sensor_hal::update_value(void)
 		return false;
 	}
 
-	DBG("read event,  len : %d , type : %x , code : %x , value : %x", len, proxi_event.type, proxi_event.code, proxi_event.value);
 	if ((proxi_event.type == EV_ABS) && (proxi_event.code == ABS_DISTANCE)) {
 		m_state = proxi_event.value;
 		m_fired_time = sensor_hal_base::get_timestamp(&proxi_event.time);
-	} else {
-		return false;
-	}
-	return true;
-}
 
-bool proxi_sensor_hal::is_data_ready(void)
-{
-	bool ret;
-	ret = update_value();
-	return ret;
+		DBG("m_state = %d, time = %lluus", m_state, m_fired_time);
+
+		return true;
+	}
+
+	return false;
 }
 
 bool proxi_sensor_hal::get_sensor_data(uint32_t id, sensor_data_t &data)
@@ -204,13 +200,13 @@ int proxi_sensor_hal::get_sensor_event(uint32_t id, sensor_event_t **event)
 
 bool proxi_sensor_hal::get_properties(uint32_t id, sensor_properties_s &properties)
 {
-	properties.name = m_chip_name;
-	properties.vendor = m_vendor;
-	properties.min_range = 0;
-	properties.max_range = 1;
-	properties.min_interval = 1;
-	properties.resolution = 1;
-	properties.fifo_count = 0;
-	properties.max_batch_count = 0;
+	properties.name = MODEL_NAME;
+	properties.vendor = VENDOR;
+	properties.min_range = proxi_properties.min_range;
+	properties.max_range = proxi_properties.max_range;
+	properties.min_interval = proxi_properties.min_interval;
+	properties.resolution = proxi_properties.resolution;
+	properties.fifo_count = proxi_properties.fifo_count;
+	properties.max_batch_count = proxi_properties.max_batch_count;
 	return true;
 }

@@ -18,7 +18,7 @@ BuildRequires:  pkgconfig(libxml-2.0)
 
 %define accel_state ON
 %define gyro_state OFF
-%define proxi_state OFF
+%define proxi_state ON
 %define light_state OFF
 %define geo_state OFF
 %define pressure_state OFF

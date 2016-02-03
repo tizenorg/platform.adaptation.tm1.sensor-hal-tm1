@@ -34,9 +34,9 @@ using std::ifstream;
 #define ATTR_VALUE 				"value"
 
 proxi_sensor_hal::proxi_sensor_hal()
-: m_state(-1)
+: m_node_handle(-1)
+, m_state(-1)
 , m_fired_time(0)
-, m_node_handle(-1)
 {
 	const string sensorhub_interval_node_name = "prox_poll_delay";
 	csensor_config &config = csensor_config::get_instance();
@@ -99,20 +99,20 @@ proxi_sensor_hal::~proxi_sensor_hal()
 	INFO("Proxi_sensor_hal is destroyed!\n");
 }
 
-string proxi_sensor_hal::get_model_id(void)
+bool proxi_sensor_hal::get_sensors(std::vector<sensor_handle_t> &sensors)
 {
-	return m_model_id;
+	sensor_handle_t handle;
+	handle.id = 0x1;
+	handle.name = "Proximity Sensor";
+	handle.type = SENSOR_HAL_TYPE_PROXIMITY;
+	handle.event_type = SENSOR_HAL_TYPE_PROXIMITY << 16 | 0x0001;
+
+	sensors.push_back(handle);
+	return true;
 }
 
-sensor_hal_type_t proxi_sensor_hal::get_type(void)
+bool proxi_sensor_hal::enable(uint32_t id)
 {
-	return SENSOR_HAL_TYPE_PROXIMITY;
-}
-
-bool proxi_sensor_hal::enable(void)
-{
-	AUTOLOCK(m_mutex);
-
 	set_enable_node(m_enable_node, m_sensorhub_controlled, true, SENSORHUB_PROXIMITY_ENABLE_BIT);
 
 	m_fired_time = 0;
@@ -120,19 +120,32 @@ bool proxi_sensor_hal::enable(void)
 	return true;
 }
 
-bool proxi_sensor_hal::disable(void)
+bool proxi_sensor_hal::disable(uint32_t id)
 {
-	AUTOLOCK(m_mutex);
-
 	set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_PROXIMITY_ENABLE_BIT);
 
 	INFO("Proxi sensor real stopping");
 	return true;
 }
 
-bool proxi_sensor_hal::set_interval(unsigned long val)
+int proxi_sensor_hal::get_poll_fd()
+{
+	return m_node_handle;
+}
+
+bool proxi_sensor_hal::set_interval(uint32_t id, unsigned long interval_ms)
 {
 	return true;
+}
+
+bool proxi_sensor_hal::set_batch_latency(uint32_t id, unsigned long val)
+{
+	return false;
+}
+
+bool proxi_sensor_hal::set_command(uint32_t id, std::string command, std::string value)
+{
+	return false;
 }
 
 bool proxi_sensor_hal::update_value(void)
@@ -149,7 +162,6 @@ bool proxi_sensor_hal::update_value(void)
 
 	DBG("read event,  len : %d , type : %x , code : %x , value : %x", len, proxi_event.type, proxi_event.code, proxi_event.value);
 	if ((proxi_event.type == EV_ABS) && (proxi_event.code == ABS_DISTANCE)) {
-		AUTOLOCK(m_value_mutex);
 		m_state = proxi_event.value;
 		m_fired_time = sensor_hal_base::get_timestamp(&proxi_event.time);
 	} else {
@@ -165,18 +177,32 @@ bool proxi_sensor_hal::is_data_ready(void)
 	return ret;
 }
 
-int proxi_sensor_hal::get_sensor_data(sensor_data_t &data)
+bool proxi_sensor_hal::get_sensor_data(uint32_t id, sensor_data_t &data)
 {
-	AUTOLOCK(m_value_mutex);
 	data.accuracy = SENSOR_ACCURACY_UNDEFINED;
 	data.timestamp = m_fired_time;
 	data.value_count = 1;
 	data.values[0] = m_state;
 
-	return 0;
+	return true;
 }
 
-bool proxi_sensor_hal::get_properties(sensor_properties_s &properties)
+int proxi_sensor_hal::get_sensor_event(uint32_t id, sensor_event_t **event)
+{
+	sensor_event_t *sensor_event;
+	sensor_event = (sensor_event_t *)malloc(sizeof(sensor_event_t));
+
+	sensor_event->data.accuracy = SENSOR_ACCURACY_GOOD;
+	sensor_event->data.timestamp = m_fired_time;
+	sensor_event->data.value_count = 1;
+	sensor_event->data.values[0] = m_state;
+
+	*event = sensor_event;
+
+	return sizeof(sensor_event_t);
+}
+
+bool proxi_sensor_hal::get_properties(uint32_t id, sensor_properties_s &properties)
 {
 	properties.name = m_chip_name;
 	properties.vendor = m_vendor;

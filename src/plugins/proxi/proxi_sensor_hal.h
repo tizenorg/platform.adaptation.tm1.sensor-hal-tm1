@@ -27,29 +27,32 @@ class proxi_sensor_hal : public sensor_hal_base
 public:
 	proxi_sensor_hal();
 	virtual ~proxi_sensor_hal();
-	std::string get_model_id(void);
-	sensor_hal_type_t get_type(void);
-	bool enable(void);
-	bool disable(void);
-	bool set_interval(unsigned long ms_interval);
+
+	int get_poll_fd(void);
+	bool get_sensors(std::vector<sensor_handle_t> &sensors);
+	bool enable(uint32_t id);
+	bool disable(uint32_t id);
+	bool set_interval(uint32_t id, unsigned long ms_interval);
+	bool set_batch_latency(uint32_t id, unsigned long val);
+	bool set_command(uint32_t id, std::string command, std::string value);
 	bool is_data_ready(void);
-	virtual int get_sensor_data(sensor_data_t &data);
-	virtual bool get_properties(sensor_properties_s &properties);
+	bool get_sensor_data(uint32_t id, sensor_data_t &data);
+	int get_sensor_event(uint32_t id, sensor_event_t **event);
+	bool get_properties(uint32_t id, sensor_properties_s &properties);
+
 private:
+	int m_node_handle;
+	unsigned int m_state;
+	unsigned long long m_fired_time;
+
 	std::string m_model_id;
 	std::string m_vendor;
 	std::string m_chip_name;
 
-	std::string m_enable_node;
 	std::string m_data_node;
+	std::string m_enable_node;
 
-	unsigned int m_state;
-
-	unsigned long long m_fired_time;
-
-	int m_node_handle;
 	bool m_sensorhub_controlled;
-	cmutex m_value_mutex;
 
 	bool update_value(void);
 };

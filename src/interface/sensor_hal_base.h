@@ -31,9 +31,9 @@
 */
 
 #ifndef EVIOCSCLOCKID
-#define EVIOCSCLOCKID		_IOW('E', 0xa0, int)			/* Set clockid to be used for timestamps */
+/* Set clockid to be used for timestamps */
+#define EVIOCSCLOCKID		_IOW('E', 0xa0, int)
 #endif
-
 
 typedef struct {
 	int method;
@@ -64,18 +64,11 @@ typedef struct {
 	std::string prefix;
 } input_method_info;
 
-#define DEFAULT_WAIT_TIME 0
-
 class sensor_hal_base : public sensor_hal
 {
 public:
 	sensor_hal_base();
 	virtual ~sensor_hal_base();
-
-	bool init(void *data = NULL);
-	long set_command(unsigned int cmd, long val);
-	bool set_wakeup(int wakeup);
-	int send_sensorhub_data(const char *data, int data_len);
 
 protected:
 	bool set_enable_node(const std::string &node_path, bool sensorhub_controlled, bool enable, int enable_bit = 0);

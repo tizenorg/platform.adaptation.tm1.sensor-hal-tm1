@@ -81,6 +81,6 @@ add_library(${PROJECT_NAME} SHARED
 	hal_module_create.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} ${plugin_pkgs_LDFLAGS} "-lrt -ldl -pthread")
+target_link_libraries(${PROJECT_NAME} ${plugin_pkgs_LDFLAGS})
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR}/sensor)

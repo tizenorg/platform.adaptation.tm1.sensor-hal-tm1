@@ -55,7 +55,7 @@ unsigned long long sensor_hal_base::get_timestamp(timeval *t)
 
 bool sensor_hal_base::is_sensorhub_controlled(const string &key)
 {
-	string key_node =  string("/sys/class/sensors/ssp_sensor/") + key;
+	string key_node = string("/sys/class/sensors/ssp_sensor/") + key;
 
 	if (access(key_node.c_str(), F_OK) == 0)
 		return true;

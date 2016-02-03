@@ -1,13 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
-project(sensor_hal_main CXX)
+project(sensor-plugins CXX)
 include(GNUInstallDirs)
-
-# Setup For pkgconfig File
-SET(PREFIX ${CMAKE_INSTALL_PREFIX})
-SET(EXEC_PREFIX "${PREFIX}/bin")
-SET(LIBDIR "${PREFIX}/${CMAKE_INSTALL_LIBDIR}")
-SET(INCLUDEDIR "${PREFIX}/${CMAKE_INSTALL_INCLUDEDIR}")
-SET(VERSION 1.0)
 
 # Common Options
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -omit-frame-pointer -std=gnu++0x")

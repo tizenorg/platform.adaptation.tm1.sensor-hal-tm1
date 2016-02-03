@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(sensor-hal CXX)
+project(sensor-plugins-tm1 CXX)
 
 INCLUDE(FindPkgConfig)
 PKG_CHECK_MODULES(plugin_pkgs REQUIRED dlog libxml-2.0)
@@ -85,4 +85,4 @@ add_library(${PROJECT_NAME} SHARED
 
 target_link_libraries(${PROJECT_NAME} ${plugin_pkgs_LDFLAGS} "-lrt -ldl -pthread")
 
-install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR}/sensor-hal)
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR}/sensor)

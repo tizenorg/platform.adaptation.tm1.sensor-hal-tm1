@@ -1,11 +1,10 @@
-Name:       sensor-hal
-Summary:    Sensor HAL Plugins
+Name:       sensor-plugins-tm1
+Summary:    TM1 Sensor Plugins
 Version:    1.0.0
 Release:    0
-Group:      System/Sensor HAL
+Group:      System/Sensor Framework
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
-Source1:    sensor-hal.manifest
 
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
@@ -23,19 +22,10 @@ BuildRequires:  pkgconfig(libxml-2.0)
 %define bio_led_red_state OFF
 
 %description
-Sensor HAL Plugins
-
-%package sensor-hal
-Summary:    Sensor HAL Plugins
-Group:      System/Sensor Framework
-Requires:   %{name} = %{version}-%{release}
-
-%description sensor-hal
-Sensor HAL Plugins
+TM1 Sensor Plugins
 
 %prep
 %setup -q
-cp %{SOURCE1} .
 
 cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix} -DACCEL=%{accel_state} \
 -DGYRO=%{gyro_state} -DPROXI=%{proxi_state} -DLIGHT=%{light_state} \
@@ -51,11 +41,13 @@ make %{?jobs:-j%jobs}
 rm -rf %{buildroot}
 %make_install
 
-%post -n sensor-hal -p /sbin/ldconfig
+%post
+/sbin/ldconfig
 
-%postun -n sensor-hal -p /sbin/ldconfig
+%postun
+/sbin/ldconfig
 
-%files -n sensor-hal
-%manifest sensor-hal.manifest
+%files
+%manifest packaging/%{name}.manifest
 %attr(0644,root,root)/usr/etc/sensors.xml
-%{_libdir}/sensor-hal/libsensor-hal.so
+%{_libdir}/sensor/*.so

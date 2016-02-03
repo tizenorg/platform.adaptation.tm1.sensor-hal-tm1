@@ -17,12 +17,17 @@
  *
  */
 
-#include <sensor_common.h>
+#include <sensor_hal.h>
+#include <sensor_logs.h>
 
+#ifdef ENABLE_ACCEL
 #include "accel/accel.h"
+#endif
 //#include "gyro/gyro_sensor_device.h"
 //#include "magnetic/geo_sensor_device.h"
+#ifdef ENABLE_PROXIMITY
 #include "proximity/proxi.h"
+#endif
 //#include "light/light_sensor_device.h"
 //#include "rotation_vector/rv_raw_sensor_device.h"
 //#include "pressure/pressure_sensor_device.h"

@@ -23,6 +23,8 @@
 #include <linux/input.h>
 #include <sys/poll.h>
 #include <util.h>
+#include <macro.h>
+#include <sensor_logs.h>
 #include "accel.h"
 
 #define GRAVITY 9.80665

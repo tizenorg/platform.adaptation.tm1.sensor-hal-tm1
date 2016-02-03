@@ -17,10 +17,12 @@
  *
  */
 
+#include <unistd.h>
 #include <dirent.h>
 #include <string.h>
 #include <fstream>
 #include <util.h>
+#include <sensor_logs.h>
 
 using std::ifstream;
 using std::ofstream;

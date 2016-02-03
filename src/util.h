@@ -21,9 +21,7 @@
 #define _SENSOR_UTIL_H_
 
 #include <sys/time.h>
-#include <sensor_logs.h>
 #include <string>
-#include <sensor_hal.h>
 
 typedef struct {
 	int method;

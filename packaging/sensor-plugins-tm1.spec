@@ -6,6 +6,12 @@ Group:      System/Sensor Framework
 License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
 
+%if "%{?profile}" == "mobile"
+ExcludeArch: aarch64 %ix86 x86_64
+%else
+ExcludeArch: %{arm} aarch64 %ix86 x86_64
+%endif
+
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
 BuildRequires:  pkgconfig(libxml-2.0)

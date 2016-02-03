@@ -29,9 +29,6 @@ extern "C"
 {
 #endif
 
-#include <sys/types.h>
-#include <unistd.h>
-
 #if !defined(PATH_MAX)
 #define PATH_MAX 256
 #endif
@@ -212,17 +209,6 @@ void sf_log(int type , int priority , const char *tag , const char *fmt , ...);
 	} while (0)
 
 #endif
-
-struct sensor_data_t;
-struct sensorhub_data_t;
-typedef struct sensor_data_t sensor_data_t;
-typedef struct sensorhub_data_t sensorhub_data_t;
-
-const char* get_client_name(void);
-bool get_proc_name(pid_t pid, char *process_name);
-bool is_sensorhub_event(unsigned int event_type);
-void copy_sensor_data(sensor_data_t *dest, sensor_data_t *src);
-void copy_sensorhub_data(sensorhub_data_t *dest, sensorhub_data_t *src);
 
 #ifdef __cplusplus
 }

@@ -17,18 +17,15 @@
  *
  */
 
+/*TODO: clean up header files*/
 #include <syslog.h>
+#include <unistd.h>
+#include <sys/types.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <string.h>
-#include "sensor_logs.h"
 #include <dlog.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <sensor_common.h>
+#include "sensor_logs.h"
 
 #ifndef EXTAPI
 #define EXTAPI __attribute__((visibility("default")))
@@ -111,87 +108,4 @@ EXTAPI void sf_log(int type , int priority , const char *tag , const char *fmt ,
 	}
 
 	va_end(ap);
-}
-
-#if defined(_DEBUG)
-bool get_proc_name(pid_t pid, char *process_name)
-{
-	FILE *fp;
-	char buf[NAME_MAX];
-	char filename[PATH_MAX];
-
-	sprintf(filename, "/proc/%d/stat", pid);
-	fp = fopen(filename, "r");
-
-	if (fp == NULL)
-		return false;
-
-	if (fscanf(fp, "%*s (%[^)]", buf) < 1) {
-		fclose(fp);
-		return false;
-	}
-
-	strncpy(process_name, buf, NAME_MAX-1);
-	process_name[NAME_MAX-1] = '\0';
-	fclose(fp);
-
-	return true;
-}
-#else
-bool get_proc_name(pid_t pid, char *process_name)
-{
-	char buf[NAME_MAX];
-
-	if (snprintf(buf, sizeof(buf), "%d process", pid) < 1) {
-		return false;
-	}
-
-	strncpy(process_name, buf, NAME_MAX-1);
-	process_name[NAME_MAX-1] = '\0';
-
-	return true;
-}
-#endif
-
-const char* get_client_name(void)
-{
-	const int pid_string_size = 10;
-	static pid_t pid = -1;
-	static char client_name[NAME_MAX + pid_string_size];
-
-	char proc_name[NAME_MAX];
-
-	if (pid == -1)
-	{
-		pid = getpid();
-		get_proc_name(pid, proc_name);
-		snprintf(client_name, sizeof(client_name), "%s(%d)", proc_name, pid);
-	}
-
-	return client_name;
-}
-
-
-bool is_sensorhub_event(unsigned int event_type)
-{
-	if ((event_type >> SENSOR_TYPE_SHIFT) == CONTEXT_SENSOR)
-		return true;
-
-	return false;
-}
-
-void copy_sensor_data(sensor_data_t *dest, sensor_data_t *src)
-{
-	memcpy(dest, src, offsetof(sensor_data_t, values));
-	memcpy(dest->values, src->values, src->value_count * sizeof(src->values[0]));
-
-	dest->extra_data_size = src->extra_data_size;
-	dest->extra_data = src->extra_data;
-}
-
-void copy_sensorhub_data(sensorhub_data_t *dest, sensorhub_data_t *src)
-{
-	memcpy(dest, src, offsetof(sensorhub_data_t, hub_data));
-	memcpy(dest->hub_data, src->hub_data, src->hub_data_size);
-	memcpy(dest->data, src->data, sizeof(src->data));
 }

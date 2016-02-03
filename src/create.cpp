@@ -19,23 +19,16 @@
 
 #include <sensor_hal.h>
 #include <sensor_logs.h>
+#include <vector>
 
 #ifdef ENABLE_ACCEL
 #include "accel/accel.h"
 #endif
-//#include "gyro/gyro_sensor_device.h"
-//#include "magnetic/geo_sensor_device.h"
 #ifdef ENABLE_PROXIMITY
 #include "proximity/proxi.h"
 #endif
-//#include "light/light_sensor_device.h"
-//#include "rotation_vector/rv_raw_sensor_device.h"
-//#include "pressure/pressure_sensor_device.h"
-//#include "temperature/temperature_sensor_device.h"
-//#include "ultraviolet/ultraviolet_sensor_device.h"
-//#include "hrm_led_red/bio_led_red_sensor_device.h"
 
-static sensor_devices *devices = NULL;
+static std::vector<sensor_device_t> devs;
 
 template<typename _sensor>
 void create_sensor(const char *name)
@@ -51,53 +44,30 @@ void create_sensor(const char *name)
 		return;
 	}
 
-	devices->devices.push_back(instance);
+	devs.push_back(instance);
 }
 
-extern "C" sensor_devices* create(void)
+extern "C" int create(sensor_device_t **devices)
 {
-	devices = new(std::nothrow) sensor_devices;
-	retvm_if(!devices, NULL, "Failed to allocate memory");
+	int size;
+	sensor_device_t *_devices;
 
 #ifdef ENABLE_ACCEL
 	create_sensor<accel_device>("Accel");
-#endif
-
-#ifdef ENABLE_GYRO
-	create_sensor<gyro_sensor_device>("Gyro");
-#endif
-
-#ifdef ENABLE_MAGNETIC
-	create_sensor<geo_sensor_device>("Magnetic");
 #endif
 
 #ifdef ENABLE_PROXIMITY
 	create_sensor<proxi_sensor_device>("Proximity");
 #endif
 
-#ifdef ENABLE_LIGHT
-	create_sensor<light_sensor_device>("Light");
-#endif
+	size = devs.size();
+	_devices = (sensor_device_t *)malloc(size * sizeof(sensor_device_t));
+	retvm_if(!_devices, 0, "Failed to allocate memory");
 
-#ifdef ENABLE_ROTATION_VECTOR
-	create_sensor<rv_raw_sensor_device>("Rotation Vector");
-#endif
+	for (int i = 0; i < size; ++i)
+		_devices[i] = devs[i];
 
-#ifdef ENABLE_PRESSURE
-	create_sensor<pressure_sensor_device>("Pressure");
-#endif
+	*devices = _devices;
 
-#ifdef ENABLE_TEMPERATURE
-	create_sensor<temperature_sensor_device>("Temperature");
-#endif
-
-#ifdef ENABLE_ULTRAVIOLET
-	create_sensor<ultraviolet_sensor_device>("Ultraviolet");
-#endif
-
-#ifdef ENABLE_HRM_LED_RED
-	create_sensor<bio_led_red_sensor_device>("HRM Led Red");
-#endif
-
-	return devices;
+	return size;
 }

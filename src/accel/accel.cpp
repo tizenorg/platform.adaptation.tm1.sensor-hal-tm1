@@ -51,6 +51,7 @@ static const sensor_info_t accel_info = {
 	resolution : RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
 	min_interval : MIN_INTERVAL,
 	max_batch_count : MAX_BATCH_COUNT,
+	wakeup_supported : false,
 };
 
 static const sensor_handle_t handles[] = {
@@ -68,6 +69,11 @@ static const sensor_handle_t handles[] = {
 		event_type: (SENSOR_DEVICE_ACCELEROMETER << 16) | 0x0002,
 		info : accel_info
 	}
+};
+
+static uint16_t event_ids[] = {
+	0x1,
+	0x2,
 };
 
 accel_device::accel_device()
@@ -122,14 +128,12 @@ int accel_device::get_poll_fd()
 	return m_node_handle;
 }
 
-bool accel_device::get_sensors(std::vector<sensor_handle_t> &sensors)
+int accel_device::get_sensors(const sensor_handle_t **sensors)
 {
 	int size = ARRAY_SIZE(handles);
+	*sensors = handles;
 
-	for (int i = 0; i < size; ++i)
-		sensors.push_back(handles[i]);
-
-	return true;
+	return size;
 }
 
 bool accel_device::enable(uint16_t id)
@@ -246,17 +250,20 @@ bool accel_device::update_value_input_event(void)
 	return true;
 }
 
-bool accel_device::read_fd(std::vector<uint16_t> &ids)
+int accel_device::read_fd(uint16_t **ids)
 {
+	int size;
+
 	if (!update_value_input_event()) {
 		DBG("Failed to update value");
 		return false;
 	}
 
-	ids.push_back(handles[0].id);
-	ids.push_back(handles[1].id);
+	size = ARRAY_SIZE(event_ids);
 
-	return true;
+	*ids = event_ids;
+
+	return size;
 }
 
 int accel_device::get_data(uint16_t id, sensor_data_t **data)

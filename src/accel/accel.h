@@ -20,8 +20,8 @@
 #ifndef _ACCEL_DEVICE_H_
 #define _ACCEL_DEVICE_H_
 
-#include <vector>
 #include <sensor_hal.h>
+#include <string>
 
 class accel_device : public sensor_device
 {
@@ -30,7 +30,7 @@ public:
 	virtual ~accel_device();
 
 	int get_poll_fd(void);
-	bool get_sensors(std::vector<sensor_handle_t> &sensors);
+	int get_sensors(const sensor_handle_t **sensors);
 
 	bool enable(uint16_t id);
 	bool disable(uint16_t id);
@@ -39,8 +39,9 @@ public:
 	bool set_batch_latency(uint16_t id, unsigned long val);
 	bool set_attribute(uint16_t id, int32_t attribute, int32_t value);
 
-	bool read_fd(std::vector<uint16_t> &ids);
+	int read_fd(uint16_t **ids);
 	int get_data(uint16_t id, sensor_data_t **data);
+
 	bool flush(uint16_t id);
 
 private:

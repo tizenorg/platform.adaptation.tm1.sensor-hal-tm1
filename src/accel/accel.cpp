@@ -1,7 +1,5 @@
 /*
- * accel_device
- *
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +14,15 @@
  * limitations under the License.
  *
  */
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <linux/input.h>
 #include <util.h>
-#include <macro.h>
 #include <sensor_logs.h>
+
 #include "accel.h"
 
 #define GRAVITY 9.80665
@@ -43,38 +42,22 @@
 
 #define SENSORHUB_ACCELEROMETER_ENABLE_BIT 0
 
-static const sensor_info_t accel_info = {
-	model_name : MODEL_NAME,
-	vendor : VENDOR,
-	min_range : MIN_RANGE(RESOLUTION) * RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
-	max_range : MAX_RANGE(RESOLUTION) * RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
-	resolution : RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
-	min_interval : MIN_INTERVAL,
-	max_batch_count : MAX_BATCH_COUNT,
-	wakeup_supported : false,
+static const sensor_handle_t handle = {
+	id: 0x1,
+	name: "Accelerometer",
+	type: SENSOR_DEVICE_ACCELEROMETER,
+	event_type: (SENSOR_DEVICE_ACCELEROMETER << 16) | 0x0001,
+	model_name: MODEL_NAME,
+	vendor: VENDOR,
+	min_range: MIN_RANGE(RESOLUTION) * RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
+	max_range: MAX_RANGE(RESOLUTION) * RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
+	resolution: RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(RAW_DATA_UNIT),
+	min_interval: MIN_INTERVAL,
+	max_batch_count: MAX_BATCH_COUNT,
+	wakeup_supported: false
 };
 
-static const sensor_handle_t handles[] = {
-	{
-		id: 0x1,
-		name: "Accelerometer",
-		type: SENSOR_DEVICE_ACCELEROMETER,
-		event_type: (SENSOR_DEVICE_ACCELEROMETER << 16) | 0x0001,
-		info : accel_info
-	},
-	{
-		id: 0x2,
-		name: "Accelerometer RAW",
-		type: SENSOR_DEVICE_ACCELEROMETER,
-		event_type: (SENSOR_DEVICE_ACCELEROMETER << 16) | 0x0002,
-		info : accel_info
-	}
-};
-
-static uint16_t event_ids[] = {
-	0x1,
-	0x2,
-};
+std::vector<uint16_t> accel_device::event_ids;
 
 accel_device::accel_device()
 : m_node_handle(-1)
@@ -130,10 +113,9 @@ int accel_device::get_poll_fd()
 
 int accel_device::get_sensors(const sensor_handle_t **sensors)
 {
-	int size = ARRAY_SIZE(handles);
-	*sensors = handles;
+	*sensors = &handle;
 
-	return size;
+	return 1;
 }
 
 bool accel_device::enable(uint16_t id)
@@ -176,6 +158,11 @@ bool accel_device::set_batch_latency(uint16_t id, unsigned long val)
 }
 
 bool accel_device::set_attribute(uint16_t id, int32_t attribute, int32_t value)
+{
+	return false;
+}
+
+bool accel_device::set_attribute_str(uint16_t id, char *attribute, char *value, int value_len)
 {
 	return false;
 }
@@ -252,18 +239,17 @@ bool accel_device::update_value_input_event(void)
 
 int accel_device::read_fd(uint16_t **ids)
 {
-	int size;
-
 	if (!update_value_input_event()) {
 		DBG("Failed to update value");
 		return false;
 	}
 
-	size = ARRAY_SIZE(event_ids);
+	event_ids.clear();
+	event_ids.push_back(handle.id);
 
-	*ids = event_ids;
+	*ids = &event_ids[0];
 
-	return size;
+	return event_ids.size();
 }
 
 int accel_device::get_data(uint16_t id, sensor_data_t **data, int *length)

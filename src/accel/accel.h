@@ -1,7 +1,5 @@
 /*
- * accel_device
- *
- * Copyright (c) 2014 Samsung Electronics Co., Ltd.
+ * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +20,7 @@
 
 #include <sensor_hal.h>
 #include <string>
+#include <vector>
 
 class accel_device : public sensor_device {
 public:
@@ -37,6 +36,7 @@ public:
 	bool set_interval(uint16_t id, unsigned long val);
 	bool set_batch_latency(uint16_t id, unsigned long val);
 	bool set_attribute(uint16_t id, int32_t attribute, int32_t value);
+	bool set_attribute_str(uint16_t id, char *attribute, char *value, int value_len);
 
 	int read_fd(uint16_t **ids);
 	int get_data(uint16_t id, sensor_data_t **data, int *length);
@@ -55,6 +55,8 @@ private:
 	std::string m_data_node;
 	std::string m_enable_node;
 	std::string m_interval_node;
+
+	static std::vector<uint16_t> event_ids;
 
 	bool update_value_input_event(void);
 	void raw_to_base(sensor_data_t *data);

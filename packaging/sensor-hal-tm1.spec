@@ -1,5 +1,5 @@
-Name:       sensor-plugins-tm1
-Summary:    TM1 Sensor Plugins
+Name:       sensor-hal-tm1
+Summary:    TM1 Sensor HAL
 Version:    1.0.0
 Release:    0
 Group:      Service/Sensor
@@ -14,9 +14,12 @@ ExcludeArch: %{arm} aarch64 %ix86 x86_64
 
 BuildRequires:  cmake
 BuildRequires:  pkgconfig(dlog)
+BuildRequires:  pkgconfig(glib-2.0)
+BuildRequires:  pkgconfig(gio-2.0)
+BuildRequires:  pkgconfig(vconf)
 
 %description
-TM1 Sensor Plugins
+TM1 Sensor HAL
 
 %prep
 %setup -q

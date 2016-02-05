@@ -15,10 +15,10 @@
  *
  */
 
-#ifndef __MACRO_H__
-#define __MACRO_H__
+#ifndef _DBUS_UTIL_H_
+#define _DBUS_UTIL_H_
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+void init_dbus(void);
+void fini_dbus(void);
 
-#endif /* __MACRO_H__ */
-//! End of a file
+#endif /* _DBUS_UTIL_H_ */

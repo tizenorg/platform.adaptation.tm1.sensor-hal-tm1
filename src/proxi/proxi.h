@@ -15,17 +15,18 @@
  *
  */
 
-#ifndef _ACCEL_DEVICE_H_
-#define _ACCEL_DEVICE_H_
+#ifndef _PROXI_DEVICE_H_
+#define _PROXI_DEVICE_H_
 
 #include <sensor_hal.h>
 #include <string>
 #include <vector>
 
-class accel_device : public sensor_device {
+class proxi_device : public sensor_device
+{
 public:
-	accel_device();
-	virtual ~accel_device();
+	proxi_device();
+	virtual ~proxi_device();
 
 	int get_poll_fd(void);
 	int get_sensors(const sensor_handle_t **sensors);
@@ -45,20 +46,15 @@ public:
 
 private:
 	int m_node_handle;
-	int m_x;
-	int m_y;
-	int m_z;
-	unsigned long m_polling_interval;
+	unsigned int m_state;
 	unsigned long long m_fired_time;
 	bool m_sensorhub_controlled;
 
 	std::string m_data_node;
 	std::string m_enable_node;
-	std::string m_interval_node;
 
 	static std::vector<uint16_t> event_ids;
 
 	bool update_value_input_event(void);
-	void raw_to_base(sensor_data_t *data);
 };
-#endif /*_ACCEL_DEVICE_H_*/
+#endif /*_PROXI_DEVICE_H_*/

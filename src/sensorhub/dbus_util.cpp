@@ -15,10 +15,14 @@
  *
  */
 
-#ifndef __MACRO_H__
-#define __MACRO_H__
+#include <gio/gio.h>
+#include <sensor_logs.h>
+#include "dbus_util.h"
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+void init_dbus(void)
+{
+}
 
-#endif /* __MACRO_H__ */
-//! End of a file
+void fini_dbus(void)
+{
+}

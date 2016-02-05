@@ -15,10 +15,29 @@
  *
  */
 
-#ifndef __MACRO_H__
-#define __MACRO_H__
+#ifndef _WRISTUP_SENSOR_H_
+#define _WRISTUP_SENSOR_H_
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#include "sensorhub_sensor.h"
 
-#endif /* __MACRO_H__ */
-//! End of a file
+class wristup_sensor : public sensorhub_sensor {
+public:
+	wristup_sensor();
+	virtual ~wristup_sensor();
+
+	int16_t get_id(void);
+
+	bool enable(void);
+	bool disable(void);
+
+	int parse(const char *data, int data_len);
+	int get_data(sensor_data_t **data, int *length);
+
+	bool set_attribute(int32_t attribute, int32_t value);
+	bool set_attribute_str(char *attribute, char *value, int value_len);
+
+private:
+	sensorhub_data_t m_data;
+};
+
+#endif /* _WRISTUP_SENSOR_H_ */

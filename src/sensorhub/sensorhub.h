@@ -15,17 +15,19 @@
  *
  */
 
-#ifndef _ACCEL_DEVICE_H_
-#define _ACCEL_DEVICE_H_
+#ifndef _SENSORHUB_DEVICE_H_
+#define _SENSORHUB_DEVICE_H_
 
-#include <sensor_hal.h>
-#include <string>
 #include <vector>
+#include <sensor_hal.h>
 
-class accel_device : public sensor_device {
+#include "sensorhub_controller.h"
+#include "sensorhub_manager.h"
+
+class sensorhub_device : public sensor_device {
 public:
-	accel_device();
-	virtual ~accel_device();
+	sensorhub_device();
+	virtual ~sensorhub_device();
 
 	int get_poll_fd(void);
 	int get_sensors(const sensor_handle_t **sensors);
@@ -36,7 +38,7 @@ public:
 	bool set_interval(uint16_t id, unsigned long val);
 	bool set_batch_latency(uint16_t id, unsigned long val);
 	bool set_attribute(uint16_t id, int32_t attribute, int32_t value);
-	bool set_attribute_str(uint16_t id, char *attribute, char *value, int value_len);
+	bool set_attribute_str(uint16_t id, char *key, char *value, int value_len);
 
 	int read_fd(uint16_t **ids);
 	int get_data(uint16_t id, sensor_data_t **data, int *length);
@@ -44,21 +46,13 @@ public:
 	bool flush(uint16_t id);
 
 private:
-	int m_node_handle;
-	int m_x;
-	int m_y;
-	int m_z;
-	unsigned long m_polling_interval;
-	unsigned long long m_fired_time;
-	bool m_sensorhub_controlled;
+	sensorhub_manager *manager;
+	sensorhub_controller *controller;
+	std::vector<uint16_t> event_ids;
 
-	std::string m_data_node;
-	std::string m_enable_node;
-	std::string m_interval_node;
-
-	static std::vector<uint16_t> event_ids;
-
-	bool update_value_input_event(void);
-	void raw_to_base(sensor_data_t *data);
+	int parse(const char *hub_data, int data_len);
+	int parse_data(const char *hub_data, int data_len);
+	int parse_debug(const char *hub_data, int data_len);
 };
-#endif /*_ACCEL_DEVICE_H_*/
+
+#endif /* _SENSORHUB_DEVICE_H_ */

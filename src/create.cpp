@@ -21,6 +21,7 @@
 
 #include "accel/accel.h"
 #include "proxi/proxi.h"
+#include "sensorhub/sensorhub.h"
 
 static std::vector<sensor_device_t> devs;
 
@@ -49,6 +50,10 @@ extern "C" int create(sensor_device_t **devices)
 
 #ifdef ENABLE_PROXIMITY
 	create_sensor<proxi_device>("Proximity");
+#endif
+
+#ifdef ENABLE_SENSORHUB
+	create_sensor<sensorhub_device>("Sensorhub");
 #endif
 
 	*devices = &devs[0];

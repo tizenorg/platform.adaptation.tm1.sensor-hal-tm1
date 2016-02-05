@@ -135,17 +135,27 @@ typedef struct sensor_data_t {
 	float values[SENSOR_DATA_VALUE_SIZE];
 } sensor_data_t;
 
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
+#define SENSORHUB_DATA_VALUE_SIZE 4096
 
-#ifdef __cplusplus
+/* sensorhub_data_t */
+typedef struct sensorhub_data_t {
+	int accuracy;
+	unsigned long long timestamp;
+	int value_count;
+	char values[SENSORHUB_DATA_VALUE_SIZE];
+} sensorhub_data_t;
+
 /*
  * Create devices
  */
 typedef void *sensor_device_t;
 typedef int (*create_t)(sensor_device_t **devices);
 
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#ifdef __cplusplus
 /*
  * Sensor device interface
  * 1 device must be abstracted from 1 device event node

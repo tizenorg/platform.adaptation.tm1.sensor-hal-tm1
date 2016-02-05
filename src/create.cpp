@@ -1,6 +1,4 @@
 /*
- * sensor-plugins-tm1
- *
  * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,9 +47,6 @@ void create_sensor(const char *name)
 
 extern "C" int create(sensor_device_t **devices)
 {
-	int size;
-	sensor_device_t *_devices;
-
 #ifdef ENABLE_ACCEL
 	create_sensor<accel_device>("Accel");
 #endif
@@ -60,14 +55,7 @@ extern "C" int create(sensor_device_t **devices)
 	create_sensor<proxi_sensor_device>("Proximity");
 #endif
 
-	size = devs.size();
-	_devices = (sensor_device_t *)malloc(size * sizeof(sensor_device_t));
-	retvm_if(!_devices, 0, "Failed to allocate memory");
+	*devices = &devs[0];
 
-	for (int i = 0; i < size; ++i)
-		_devices[i] = devs[i];
-
-	*devices = _devices;
-
-	return size;
+	return devs.size();
 }

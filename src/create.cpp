@@ -1,6 +1,4 @@
 /*
- * sensor-plugins-tm1
- *
  * Copyright (c) 2016 Samsung Electronics Co., Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -25,7 +23,7 @@
 #include "accel/accel.h"
 #endif
 #ifdef ENABLE_PROXIMITY
-#include "proximity/proxi.h"
+#include "proxi/proxi.h"
 #endif
 
 static std::vector<sensor_device_t> devs;
@@ -49,25 +47,15 @@ void create_sensor(const char *name)
 
 extern "C" int create(sensor_device_t **devices)
 {
-	int size;
-	sensor_device_t *_devices;
-
 #ifdef ENABLE_ACCEL
 	create_sensor<accel_device>("Accel");
 #endif
 
 #ifdef ENABLE_PROXIMITY
-	create_sensor<proxi_sensor_device>("Proximity");
+	create_sensor<proxi_device>("Proximity");
 #endif
 
-	size = devs.size();
-	_devices = (sensor_device_t *)malloc(size * sizeof(sensor_device_t));
-	retvm_if(!_devices, 0, "Failed to allocate memory");
+	*devices = &devs[0];
 
-	for (int i = 0; i < size; ++i)
-		_devices[i] = devs[i];
-
-	*devices = _devices;
-
-	return size;
+	return devs.size();
 }

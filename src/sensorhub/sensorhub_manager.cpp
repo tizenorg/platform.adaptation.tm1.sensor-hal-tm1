@@ -19,10 +19,6 @@
 #include "sensorhub_manager.h"
 #include "sensorhub_sensor.h"
 
-std::map<uint16_t, sensorhub_sensor *> sensorhub_manager::m_id_sensor;
-std::map<char, sensorhub_sensor *> sensorhub_manager::m_key_sensor;
-std::vector<sensor_handle_t> sensorhub_manager::m_handles;
-
 sensorhub_manager::sensorhub_manager()
 {
 }
@@ -35,6 +31,11 @@ sensorhub_manager::~sensorhub_manager()
 	m_id_sensor.clear();
 	m_key_sensor.clear();
 	m_handles.clear();
+}
+
+sensorhub_manager& sensorhub_manager::get_instance() {
+	static sensorhub_manager instance;
+	return instance;
 }
 
 bool sensorhub_manager::add_sensor(sensor_handle_t handle, char key, sensorhub_sensor *sensor)

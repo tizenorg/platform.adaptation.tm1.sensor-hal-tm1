@@ -22,7 +22,7 @@
 
 class sensorhub_controller {
 public:
-	sensorhub_controller();
+	static sensorhub_controller& get_instance();
 	virtual ~sensorhub_controller();
 
 	int open_input_node(const char* input_node);
@@ -38,6 +38,8 @@ public:
 	int send_sensorhub_data(const char *data, int data_len);
 
 private:
+	sensorhub_controller();
+
 	bool m_enabled;
 	int m_poll_node;
 	int m_data_node;

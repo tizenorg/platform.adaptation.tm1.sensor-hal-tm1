@@ -25,19 +25,12 @@
 #include "sensorhub_sensor.h"
 
 #define REGISTER_SENSOR(handle, key, sensor_class) \
-static void __attribute__((constructor)) add_sensorhub_sensor(void) \
-{ \
-	sensorhub_sensor *sensor = new(std::nothrow) (sensor_class)(); \
-	if (!sensor) { \
-		_E("ERROR: Failed to allocate memory(%s)", #sensor_class); \
-		return; \
-	} \
-	sensorhub_manager::add_sensor((handle), (key), (sensor)); \
-}
+	static sensor_class _sensor; \
+	static sensor_initializer initializer((handle), (key), (&_sensor)); \
 
 class sensorhub_manager {
 public:
-	sensorhub_manager();
+	static sensorhub_manager& get_instance();
 	virtual ~sensorhub_manager();
 
 	sensorhub_sensor *get_sensor(uint16_t id);
@@ -45,11 +38,22 @@ public:
 	int get_sensors(const sensor_handle_t **sensors);
 
 	void set_controller(sensorhub_controller *controller);
-
-	static bool add_sensor(sensor_handle_t handle, char key, sensorhub_sensor *sensor);
+	bool add_sensor(sensor_handle_t handle, char key, sensorhub_sensor *sensor);
 private:
-	static std::map<uint16_t, sensorhub_sensor *> m_id_sensor;
-	static std::map<char, sensorhub_sensor *> m_key_sensor;
-	static std::vector<sensor_handle_t> m_handles;
+	sensorhub_manager();
+
+	std::map<uint16_t, sensorhub_sensor *> m_id_sensor;
+	std::map<char, sensorhub_sensor *> m_key_sensor;
+	std::vector<sensor_handle_t> m_handles;
 };
+
+class sensor_initializer {
+public:
+	sensor_initializer(sensor_handle_t handle, char key, sensorhub_sensor *sensor)
+	{
+		sensorhub_manager::get_instance().add_sensor(handle, key, sensor);
+	}
+	~sensor_initializer() {}
+};
+
 #endif /* _SENSORHUB_MANAGER_H_ */

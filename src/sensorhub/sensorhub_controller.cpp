@@ -39,6 +39,12 @@ sensorhub_controller::~sensorhub_controller()
 {
 }
 
+sensorhub_controller& sensorhub_controller::get_instance(void)
+{
+	static sensorhub_controller instance;
+	return instance;
+}
+
 int sensorhub_controller::get_poll_fd(void)
 {
 	return -1;

@@ -86,4 +86,4 @@ bool wristup_sensor::set_attribute_str(char *key, char *value, int value_len)
 	return false;
 }
 
-REGISTER_SENSOR(handle, (char)SHUB_LIB_WRIST_UP, wristup_sensor)
+REGISTER_SENSORHUB_LIB(handle, (char)SHUB_LIB_WRIST_UP, wristup_sensor)

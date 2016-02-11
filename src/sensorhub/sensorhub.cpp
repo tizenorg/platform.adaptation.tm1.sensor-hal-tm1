@@ -25,13 +25,13 @@
 
 sensorhub_device::sensorhub_device()
 {
-	controller = new(std::nothrow) sensorhub_controller();
+	controller = &sensorhub_controller::get_instance();
 	if (!controller) {
 		ERR("Failed to allocated memory");
 		throw;
 	}
 
-	manager = new(std::nothrow) sensorhub_manager();
+	manager = &sensorhub_manager::get_instance();
 	if (!manager) {
 		ERR("Failed to allocated memory");
 		throw;
@@ -44,9 +44,6 @@ sensorhub_device::sensorhub_device()
 
 sensorhub_device::~sensorhub_device()
 {
-	delete controller;
-	delete manager;
-
 	INFO("sensorhub_device is destroyed!");
 }
 

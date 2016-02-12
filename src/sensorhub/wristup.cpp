@@ -76,12 +76,12 @@ int wristup_sensor::get_data(sensor_data_t **data, int *length)
 	return -1;
 }
 
-bool wristup_sensor::set_attribute(int32_t attribute, int32_t value)
+bool wristup_sensor::set_attribute_int(int32_t attribute, int32_t value)
 {
 	return false;
 }
 
-bool wristup_sensor::set_attribute_str(char *key, char *value, int value_len)
+bool wristup_sensor::set_attribute_str(int32_t attribute, char *value, int value_len)
 {
 	return false;
 }

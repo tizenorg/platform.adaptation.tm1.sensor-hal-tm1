@@ -114,7 +114,7 @@ bool sensorhub_device::set_batch_latency(uint32_t id, unsigned long val)
 	return sensor->set_batch_latency(val);
 }
 
-bool sensorhub_device::set_attribute(uint32_t id, int32_t attribute, int32_t value)
+bool sensorhub_device::set_attribute_int(uint32_t id, int32_t attribute, int32_t value)
 {
 	int ret;
 
@@ -125,7 +125,7 @@ bool sensorhub_device::set_attribute(uint32_t id, int32_t attribute, int32_t val
 		return false;
 	}
 
-	ret = sensor->set_attribute(attribute, value);
+	ret = sensor->set_attribute_int(attribute, value);
 
 	if ((ret < 0) && (ret != -EBUSY)) {
 		ERR("Failed to send sensorhub data");
@@ -140,7 +140,7 @@ bool sensorhub_device::set_attribute(uint32_t id, int32_t attribute, int32_t val
 	return true;
 }
 
-bool sensorhub_device::set_attribute_str(uint32_t id, char *attribute, char *value, int value_len)
+bool sensorhub_device::set_attribute_str(uint32_t id, int32_t attribute, char *value, int value_len)
 {
 	int ret;
 

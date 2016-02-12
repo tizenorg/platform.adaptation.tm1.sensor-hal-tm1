@@ -157,12 +157,12 @@ bool accel_device::set_batch_latency(uint32_t id, unsigned long val)
 	return false;
 }
 
-bool accel_device::set_attribute(uint32_t id, int32_t attribute, int32_t value)
+bool accel_device::set_attribute_int(uint32_t id, int32_t attribute, int32_t value)
 {
 	return false;
 }
 
-bool accel_device::set_attribute_str(uint32_t id, char *attribute, char *value, int value_len)
+bool accel_device::set_attribute_str(uint32_t id, int32_t attribute, char *value, int value_len)
 {
 	return false;
 }

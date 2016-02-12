@@ -33,8 +33,8 @@ public:
 	int parse(const char *data, int data_len);
 	int get_data(sensor_data_t **data, int *length);
 
-	bool set_attribute(int32_t attribute, int32_t value);
-	bool set_attribute_str(char *attribute, char *value, int value_len);
+	bool set_attribute_int(int32_t attribute, int32_t value);
+	bool set_attribute_str(int32_t attribute, char *value, int value_len);
 
 private:
 	sensorhub_data_t m_data;

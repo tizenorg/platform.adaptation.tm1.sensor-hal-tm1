@@ -34,8 +34,8 @@ public:
 
 	virtual bool set_interval(unsigned long val);
 	virtual bool set_batch_latency(unsigned long val);
-	virtual bool set_attribute(int32_t attribute, int32_t value);
-	virtual bool set_attribute_str(char *key, char *value, int value_len);
+	virtual bool set_attribute_int(int32_t attribute, int32_t value);
+	virtual bool set_attribute_str(int32_t key, char *value, int value_len);
 
 	virtual bool flush(void);
 protected:

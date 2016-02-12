@@ -37,8 +37,8 @@ public:
 
 	bool set_interval(uint32_t id, unsigned long val);
 	bool set_batch_latency(uint32_t id, unsigned long val);
-	bool set_attribute(uint32_t id, int32_t attribute, int32_t value);
-	bool set_attribute_str(uint32_t id, char *key, char *value, int value_len);
+	bool set_attribute_int(uint32_t id, int32_t attribute, int32_t value);
+	bool set_attribute_str(uint32_t id, int32_t attribute, char *value, int value_len);
 
 	int read_fd(uint32_t **ids);
 	int get_data(uint32_t id, sensor_data_t **data, int *length);

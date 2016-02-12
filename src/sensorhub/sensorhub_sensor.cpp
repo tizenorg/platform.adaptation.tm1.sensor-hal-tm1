@@ -35,12 +35,12 @@ bool sensorhub_sensor::set_batch_latency(unsigned long val)
 	return false;
 }
 
-bool sensorhub_sensor::set_attribute(int32_t attribute, int32_t value)
+bool sensorhub_sensor::set_attribute_int(int32_t attribute, int32_t value)
 {
 	return false;
 }
 
-bool sensorhub_sensor::set_attribute_str(char *attribute, char *value, int value_len)
+bool sensorhub_sensor::set_attribute_str(int32_t attribute, char *value, int value_len)
 {
 	return false;
 }

@@ -232,7 +232,7 @@ int sensorhub_device::parse(const char *hub_data, int data_len)
 int sensorhub_device::parse_data(const char *hub_data, int data_len)
 {
 	const char *cursor = hub_data;
-	char libtype = 0;
+	int32_t libtype = 0;
 
 	sensorhub_sensor *sensor = manager->get_sensor(libtype);
 	if (!sensor) {

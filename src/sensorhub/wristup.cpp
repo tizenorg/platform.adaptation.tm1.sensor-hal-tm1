@@ -28,7 +28,7 @@
 #define WRIST_UP_PACKET_SIZE	1
 
 static const sensor_handle_t handle = {
-	id: 0x1,
+	id: 0x1000 | SHUB_LIB_WRIST_UP,
 	name: SENSOR_NAME,
 	type: SENSOR_DEVICE_GESTURE_WRIST_UP,
 	event_type: (SENSOR_DEVICE_GESTURE_WRIST_UP << 16) | 0x0001,

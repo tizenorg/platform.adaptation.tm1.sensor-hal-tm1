@@ -19,9 +19,6 @@
 #include "dbus_util.h"
 #include "system_state.h"
 
-#define CPU_BOOST_DURATION 400
-#define WAKEUP_LCD_CUSTOM_PARAM 7000
-
 system_state_handler::system_state_handler()
 {
 }

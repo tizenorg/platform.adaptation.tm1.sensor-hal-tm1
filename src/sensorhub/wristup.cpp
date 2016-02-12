@@ -23,13 +23,14 @@
 #include "system_state.h"
 #include "wristup.h"
 
-#define SENSOR_NAME "WRIST_UP_SENSOR"
+#define WRIST_UP_ID 0x1000
+#define WRIST_UP_NAME "WRIST_UP_SENSOR"
 #define SHUB_LIB_WRIST_UP	0
 #define WRIST_UP_PACKET_SIZE	1
 
 static const sensor_handle_t handle = {
-	id: 0x1,
-	name: SENSOR_NAME,
+	id: WRIST_UP_ID | SHUB_LIB_WRIST_UP,
+	name: WRIST_UP_NAME,
 	type: SENSOR_DEVICE_GESTURE_WRIST_UP,
 	event_type: (SENSOR_DEVICE_GESTURE_WRIST_UP << 16) | 0x0001,
 	model_name: "Wristup",
@@ -76,12 +77,12 @@ int wristup_sensor::get_data(sensor_data_t **data, int *length)
 	return -1;
 }
 
-bool wristup_sensor::set_attribute(int32_t attribute, int32_t value)
+bool wristup_sensor::set_attribute_int(int32_t attribute, int32_t value)
 {
 	return false;
 }
 
-bool wristup_sensor::set_attribute_str(char *key, char *value, int value_len)
+bool wristup_sensor::set_attribute_str(int32_t attribute, char *value, int value_len)
 {
 	return false;
 }

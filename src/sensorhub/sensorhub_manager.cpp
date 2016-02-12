@@ -19,17 +19,18 @@
 #include "sensorhub_manager.h"
 #include "sensorhub_sensor.h"
 
+#define SENSORHUB_LIB_MASK 0xFF
+
 sensorhub_manager::sensorhub_manager()
 {
 }
 
 sensorhub_manager::~sensorhub_manager()
 {
-	for (auto &it : m_id_sensor)
+	for (auto &it : m_lib_sensor)
 		delete it.second;
 
-	m_id_sensor.clear();
-	m_key_sensor.clear();
+	m_lib_sensor.clear();
 	m_handles.clear();
 }
 
@@ -38,18 +39,17 @@ sensorhub_manager& sensorhub_manager::get_instance() {
 	return instance;
 }
 
-bool sensorhub_manager::add_sensor(sensor_handle_t handle, char key, sensorhub_sensor *sensor)
+bool sensorhub_manager::add_sensor(sensor_handle_t handle, char lib, sensorhub_sensor *sensor)
 {
 	m_handles.push_back(handle);
-	m_id_sensor[handle.id] = sensor;
-	m_key_sensor[key] = sensor;
+	m_lib_sensor[lib] = sensor;
 
 	return true;
 }
 
 void sensorhub_manager::set_controller(sensorhub_controller *controller)
 {
-	for (auto const &it : m_id_sensor) {
+	for (auto const &it : m_lib_sensor) {
 		sensorhub_sensor *sensor = it.second;
 		sensor->set_controller(controller);
 	}
@@ -57,12 +57,12 @@ void sensorhub_manager::set_controller(sensorhub_controller *controller)
 
 sensorhub_sensor *sensorhub_manager::get_sensor(uint32_t id)
 {
-	return m_id_sensor[id];
+	return m_lib_sensor[(id & 0xFF)];
 }
 
-sensorhub_sensor *sensorhub_manager::get_sensor(char key)
+sensorhub_sensor *sensorhub_manager::get_sensor(char lib)
 {
-	return m_key_sensor[key];
+	return m_lib_sensor[lib];
 }
 
 int sensorhub_manager::get_sensors(const sensor_handle_t **sensors)

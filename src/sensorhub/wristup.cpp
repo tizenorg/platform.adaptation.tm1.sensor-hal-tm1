@@ -23,13 +23,14 @@
 #include "system_state.h"
 #include "wristup.h"
 
-#define SENSOR_NAME "WRIST_UP_SENSOR"
+#define WRIST_UP_ID 0x1000
+#define WRIST_UP_NAME "WRIST_UP_SENSOR"
 #define SHUB_LIB_WRIST_UP	0
 #define WRIST_UP_PACKET_SIZE	1
 
 static const sensor_handle_t handle = {
-	id: 0x1,
-	name: SENSOR_NAME,
+	id: WRIST_UP_ID | SHUB_LIB_WRIST_UP,
+	name: WRIST_UP_NAME,
 	type: SENSOR_DEVICE_GESTURE_WRIST_UP,
 	event_type: (SENSOR_DEVICE_GESTURE_WRIST_UP << 16) | 0x0001,
 	model_name: "Wristup",

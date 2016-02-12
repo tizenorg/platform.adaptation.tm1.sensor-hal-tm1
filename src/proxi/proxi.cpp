@@ -50,7 +50,7 @@ static const sensor_handle_t handle = {
 	wakeup_supported: false
 };
 
-std::vector<uint16_t> proxi_device::event_ids;
+std::vector<uint32_t> proxi_device::event_ids;
 
 proxi_device::proxi_device()
 : m_node_handle(-1)
@@ -107,7 +107,7 @@ int proxi_device::get_sensors(const sensor_handle_t **sensors)
 	return 1;
 }
 
-bool proxi_device::enable(uint16_t id)
+bool proxi_device::enable(uint32_t id)
 {
 	util::set_enable_node(m_enable_node, m_sensorhub_controlled, true, SENSORHUB_PROXIMITY_ENABLE_BIT);
 
@@ -116,7 +116,7 @@ bool proxi_device::enable(uint16_t id)
 	return true;
 }
 
-bool proxi_device::disable(uint16_t id)
+bool proxi_device::disable(uint32_t id)
 {
 	util::set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_PROXIMITY_ENABLE_BIT);
 
@@ -124,22 +124,22 @@ bool proxi_device::disable(uint16_t id)
 	return true;
 }
 
-bool proxi_device::set_interval(uint16_t id, unsigned long interval_ms)
+bool proxi_device::set_interval(uint32_t id, unsigned long interval_ms)
 {
 	return true;
 }
 
-bool proxi_device::set_batch_latency(uint16_t id, unsigned long val)
+bool proxi_device::set_batch_latency(uint32_t id, unsigned long val)
 {
 	return false;
 }
 
-bool proxi_device::set_attribute(uint16_t id, int32_t attribute, int32_t value)
+bool proxi_device::set_attribute(uint32_t id, int32_t attribute, int32_t value)
 {
 	return false;
 }
 
-bool proxi_device::set_attribute_str(uint16_t id, char *attribute, char *value, int value_len)
+bool proxi_device::set_attribute_str(uint32_t id, char *attribute, char *value, int value_len)
 {
 	return false;
 }
@@ -168,7 +168,7 @@ bool proxi_device::update_value_input_event(void)
 	return false;
 }
 
-int proxi_device::read_fd(uint16_t **ids)
+int proxi_device::read_fd(uint32_t **ids)
 {
 	if (!update_value_input_event()) {
 		DBG("Failed to update value");
@@ -183,7 +183,7 @@ int proxi_device::read_fd(uint16_t **ids)
 	return event_ids.size();
 }
 
-int proxi_device::get_data(uint16_t id, sensor_data_t **data, int *length)
+int proxi_device::get_data(uint32_t id, sensor_data_t **data, int *length)
 {
 	int remains = 1;
 	sensor_data_t *sensor_data;
@@ -200,7 +200,7 @@ int proxi_device::get_data(uint16_t id, sensor_data_t **data, int *length)
 	return --remains;
 }
 
-bool proxi_device::flush(uint16_t id)
+bool proxi_device::flush(uint32_t id)
 {
 	return false;
 }

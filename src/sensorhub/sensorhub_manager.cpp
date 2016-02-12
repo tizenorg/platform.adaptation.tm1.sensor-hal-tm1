@@ -55,7 +55,7 @@ void sensorhub_manager::set_controller(sensorhub_controller *controller)
 	}
 }
 
-sensorhub_sensor *sensorhub_manager::get_sensor(uint16_t id)
+sensorhub_sensor *sensorhub_manager::get_sensor(uint32_t id)
 {
 	return m_id_sensor[id];
 }

@@ -60,7 +60,7 @@ int sensorhub_device::get_sensors(const sensor_handle_t **sensors)
 	return size;
 }
 
-bool sensorhub_device::enable(uint16_t id)
+bool sensorhub_device::enable(uint32_t id)
 {
 	system_state_handler::get_instance().initialize();
 
@@ -75,7 +75,7 @@ bool sensorhub_device::enable(uint16_t id)
 	return sensor->enable();
 }
 
-bool sensorhub_device::disable(uint16_t id)
+bool sensorhub_device::disable(uint32_t id)
 {
 	system_state_handler::get_instance().finalize();
 
@@ -90,7 +90,7 @@ bool sensorhub_device::disable(uint16_t id)
 	return sensor->disable();
 }
 
-bool sensorhub_device::set_interval(uint16_t id, unsigned long val)
+bool sensorhub_device::set_interval(uint32_t id, unsigned long val)
 {
 	sensorhub_sensor *sensor = manager->get_sensor(id);
 
@@ -102,7 +102,7 @@ bool sensorhub_device::set_interval(uint16_t id, unsigned long val)
 	return sensor->set_interval(val);
 }
 
-bool sensorhub_device::set_batch_latency(uint16_t id, unsigned long val)
+bool sensorhub_device::set_batch_latency(uint32_t id, unsigned long val)
 {
 	sensorhub_sensor *sensor = manager->get_sensor(id);
 
@@ -114,7 +114,7 @@ bool sensorhub_device::set_batch_latency(uint16_t id, unsigned long val)
 	return sensor->set_batch_latency(val);
 }
 
-bool sensorhub_device::set_attribute(uint16_t id, int32_t attribute, int32_t value)
+bool sensorhub_device::set_attribute(uint32_t id, int32_t attribute, int32_t value)
 {
 	int ret;
 
@@ -140,7 +140,7 @@ bool sensorhub_device::set_attribute(uint16_t id, int32_t attribute, int32_t val
 	return true;
 }
 
-bool sensorhub_device::set_attribute_str(uint16_t id, char *attribute, char *value, int value_len)
+bool sensorhub_device::set_attribute_str(uint32_t id, char *attribute, char *value, int value_len)
 {
 	int ret;
 
@@ -166,7 +166,7 @@ bool sensorhub_device::set_attribute_str(uint16_t id, char *attribute, char *val
 	return true;
 }
 
-int sensorhub_device::read_fd(uint16_t **ids)
+int sensorhub_device::read_fd(uint32_t **ids)
 {
 	sensorhub_data_t data;
 
@@ -204,7 +204,7 @@ int sensorhub_device::read_fd(uint16_t **ids)
 	return size;
 }
 
-int sensorhub_device::get_data(uint16_t id, sensor_data_t **data, int *length)
+int sensorhub_device::get_data(uint32_t id, sensor_data_t **data, int *length)
 {
 	int remains = 1;
 
@@ -219,7 +219,7 @@ int sensorhub_device::get_data(uint16_t id, sensor_data_t **data, int *length)
 	return remains;
 }
 
-bool sensorhub_device::flush(uint16_t id)
+bool sensorhub_device::flush(uint32_t id)
 {
 	return false;
 }

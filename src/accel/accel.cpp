@@ -57,7 +57,7 @@ static const sensor_handle_t handle = {
 	wakeup_supported: false
 };
 
-std::vector<uint16_t> accel_device::event_ids;
+std::vector<uint32_t> accel_device::event_ids;
 
 accel_device::accel_device()
 : m_node_handle(-1)
@@ -118,7 +118,7 @@ int accel_device::get_sensors(const sensor_handle_t **sensors)
 	return 1;
 }
 
-bool accel_device::enable(uint16_t id)
+bool accel_device::enable(uint32_t id)
 {
 	util::set_enable_node(m_enable_node, m_sensorhub_controlled, true, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
 	set_interval(id, m_polling_interval);
@@ -128,7 +128,7 @@ bool accel_device::enable(uint16_t id)
 	return true;
 }
 
-bool accel_device::disable(uint16_t id)
+bool accel_device::disable(uint32_t id)
 {
 	util::set_enable_node(m_enable_node, m_sensorhub_controlled, false, SENSORHUB_ACCELEROMETER_ENABLE_BIT);
 
@@ -136,7 +136,7 @@ bool accel_device::disable(uint16_t id)
 	return true;
 }
 
-bool accel_device::set_interval(uint16_t id, unsigned long val)
+bool accel_device::set_interval(uint32_t id, unsigned long val)
 {
 	unsigned long long polling_interval_ns;
 
@@ -152,17 +152,17 @@ bool accel_device::set_interval(uint16_t id, unsigned long val)
 	return true;
 }
 
-bool accel_device::set_batch_latency(uint16_t id, unsigned long val)
+bool accel_device::set_batch_latency(uint32_t id, unsigned long val)
 {
 	return false;
 }
 
-bool accel_device::set_attribute(uint16_t id, int32_t attribute, int32_t value)
+bool accel_device::set_attribute(uint32_t id, int32_t attribute, int32_t value)
 {
 	return false;
 }
 
-bool accel_device::set_attribute_str(uint16_t id, char *attribute, char *value, int value_len)
+bool accel_device::set_attribute_str(uint32_t id, char *attribute, char *value, int value_len)
 {
 	return false;
 }
@@ -237,7 +237,7 @@ bool accel_device::update_value_input_event(void)
 	return true;
 }
 
-int accel_device::read_fd(uint16_t **ids)
+int accel_device::read_fd(uint32_t **ids)
 {
 	if (!update_value_input_event()) {
 		DBG("Failed to update value");
@@ -252,7 +252,7 @@ int accel_device::read_fd(uint16_t **ids)
 	return event_ids.size();
 }
 
-int accel_device::get_data(uint16_t id, sensor_data_t **data, int *length)
+int accel_device::get_data(uint32_t id, sensor_data_t **data, int *length)
 {
 	int remains = 1;
 	sensor_data_t *sensor_data;
@@ -273,7 +273,7 @@ int accel_device::get_data(uint16_t id, sensor_data_t **data, int *length)
 	return --remains;
 }
 
-bool accel_device::flush(uint16_t id)
+bool accel_device::flush(uint32_t id)
 {
 	return false;
 }

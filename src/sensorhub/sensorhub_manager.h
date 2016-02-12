@@ -33,7 +33,7 @@ public:
 	static sensorhub_manager& get_instance();
 	virtual ~sensorhub_manager();
 
-	sensorhub_sensor *get_sensor(uint16_t id);
+	sensorhub_sensor *get_sensor(uint32_t id);
 	sensorhub_sensor *get_sensor(char key);
 	int get_sensors(const sensor_handle_t **sensors);
 
@@ -42,7 +42,7 @@ public:
 private:
 	sensorhub_manager();
 
-	std::map<uint16_t, sensorhub_sensor *> m_id_sensor;
+	std::map<uint32_t, sensorhub_sensor *> m_id_sensor;
 	std::map<char, sensorhub_sensor *> m_key_sensor;
 	std::vector<sensor_handle_t> m_handles;
 };

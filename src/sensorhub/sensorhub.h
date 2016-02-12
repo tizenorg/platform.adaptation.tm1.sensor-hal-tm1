@@ -32,23 +32,23 @@ public:
 	int get_poll_fd(void);
 	int get_sensors(const sensor_handle_t **sensors);
 
-	bool enable(uint16_t id);
-	bool disable(uint16_t id);
+	bool enable(uint32_t id);
+	bool disable(uint32_t id);
 
-	bool set_interval(uint16_t id, unsigned long val);
-	bool set_batch_latency(uint16_t id, unsigned long val);
-	bool set_attribute(uint16_t id, int32_t attribute, int32_t value);
-	bool set_attribute_str(uint16_t id, char *key, char *value, int value_len);
+	bool set_interval(uint32_t id, unsigned long val);
+	bool set_batch_latency(uint32_t id, unsigned long val);
+	bool set_attribute(uint32_t id, int32_t attribute, int32_t value);
+	bool set_attribute_str(uint32_t id, char *key, char *value, int value_len);
 
-	int read_fd(uint16_t **ids);
-	int get_data(uint16_t id, sensor_data_t **data, int *length);
+	int read_fd(uint32_t **ids);
+	int get_data(uint32_t id, sensor_data_t **data, int *length);
 
-	bool flush(uint16_t id);
+	bool flush(uint32_t id);
 
 private:
 	sensorhub_manager *manager;
 	sensorhub_controller *controller;
-	std::vector<uint16_t> event_ids;
+	std::vector<uint32_t> event_ids;
 
 	int parse(const char *hub_data, int data_len);
 	int parse_data(const char *hub_data, int data_len);

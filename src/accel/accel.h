@@ -18,7 +18,7 @@
 #ifndef _ACCEL_DEVICE_H_
 #define _ACCEL_DEVICE_H_
 
-#include <sensor_hal.h>
+#include <sensor/sensor_hal.h>
 #include <string>
 #include <vector>
 

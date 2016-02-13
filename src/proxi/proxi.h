@@ -18,7 +18,7 @@
 #ifndef _PROXI_DEVICE_H_
 #define _PROXI_DEVICE_H_
 
-#include <sensor_hal.h>
+#include <sensor/sensor_hal.h>
 #include <string>
 #include <vector>
 

@@ -19,7 +19,7 @@
 #define _SENSORHUB_DEVICE_H_
 
 #include <vector>
-#include <sensor_hal.h>
+#include <sensor/sensor_hal.h>
 
 #include "sensorhub_controller.h"
 #include "sensorhub_manager.h"

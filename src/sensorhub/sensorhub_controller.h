@@ -18,7 +18,7 @@
 #ifndef _SENSORHUB_CONTROLLER_H_
 #define _SENSORHUB_CONTROLLER_H_
 
-#include <sensor_hal.h>
+#include <sensor/sensor_hal.h>
 
 class sensorhub_controller {
 public:

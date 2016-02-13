@@ -17,6 +17,7 @@ BuildRequires:  pkgconfig(dlog)
 BuildRequires:  pkgconfig(glib-2.0)
 BuildRequires:  pkgconfig(gio-2.0)
 BuildRequires:  pkgconfig(vconf)
+BuildRequires:  sensor-hal-devel
 
 %description
 TM1 Sensor HAL

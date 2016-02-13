@@ -15,7 +15,7 @@
  *
  */
 
-#include <sensor_hal.h>
+#include <sensor/sensor_hal.h>
 #include <sensor_logs.h>
 #include <vector>
 

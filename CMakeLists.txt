@@ -5,7 +5,7 @@ INCLUDE(GNUInstallDirs)
 
 SET(ACCEL "ON")
 SET(PROXIMITY "ON")
-SET(SENSORHUB "ON")
+SET(SENSORHUB "OFF")
 
 # Common Options
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -omit-frame-pointer -std=gnu++0x")

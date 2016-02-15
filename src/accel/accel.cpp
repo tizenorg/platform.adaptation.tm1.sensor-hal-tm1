@@ -42,7 +42,7 @@
 
 #define SENSORHUB_ACCELEROMETER_ENABLE_BIT 0
 
-static const sensor_handle_t handle = {
+static const sensor_info_t sensor_info = {
 	id: 0x1,
 	name: "Accelerometer",
 	type: SENSOR_DEVICE_ACCELEROMETER,
@@ -111,9 +111,9 @@ int accel_device::get_poll_fd()
 	return m_node_handle;
 }
 
-int accel_device::get_sensors(const sensor_handle_t **sensors)
+int accel_device::get_sensors(const sensor_info_t **sensors)
 {
-	*sensors = &handle;
+	*sensors = &sensor_info;
 
 	return 1;
 }
@@ -245,7 +245,7 @@ int accel_device::read_fd(uint32_t **ids)
 	}
 
 	event_ids.clear();
-	event_ids.push_back(handle.id);
+	event_ids.push_back(sensor_info.id);
 
 	*ids = &event_ids[0];
 

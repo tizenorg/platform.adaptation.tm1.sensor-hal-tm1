@@ -52,7 +52,7 @@ int sensorhub_device::get_poll_fd(void)
 	return controller->get_poll_fd();
 }
 
-int sensorhub_device::get_sensors(const sensor_handle_t **sensors)
+int sensorhub_device::get_sensors(const sensor_info_t **sensors)
 {
 	int size;
 	size = manager->get_sensors(sensors);

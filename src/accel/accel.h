@@ -28,7 +28,7 @@ public:
 	virtual ~accel_device();
 
 	int get_poll_fd(void);
-	int get_sensors(const sensor_handle_t **sensors);
+	int get_sensors(const sensor_info_t **sensors);
 
 	bool enable(uint32_t id);
 	bool disable(uint32_t id);

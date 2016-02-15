@@ -1,6 +1,11 @@
-cmake_minimum_required(VERSION 2.6)
-project(sensor-plugins CXX)
-include(GNUInstallDirs)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+PROJECT(sensor-hal CXX)
+INCLUDE(GNUInstallDirs)
+
+
+SET(ACCEL "ON")
+SET(PROXIMITY "ON")
+SET(SENSORHUB "OFF")
 
 # Common Options
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O2 -omit-frame-pointer -std=gnu++0x")
@@ -9,16 +14,42 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--gc-section -Wl,--pri
 MESSAGE("FLAGS: ${CMAKE_CXX_FLAGS}")
 MESSAGE("FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
 
-add_definitions(-DUSE_DLOG_LOG)
-add_definitions(-DLIBDIR="${CMAKE_INSTALL_LIBDIR}")
-
 # Internal Debugging Options
-#add_definitions(-Wall -g -D_DEBUG)
+#ADD_DEFINITIONS(-Wall -g -D_DEBUG)
 
-# Installing files
-CONFIGURE_FILE(sensors.xml.in sensors.xml @ONLY)
+INCLUDE(FindPkgConfig)
+PKG_CHECK_MODULES(hal_pkgs REQUIRED dlog glib-2.0 gio-2.0 gobject-2.0 vconf)
 
-INSTALL(FILES sensors.xml DESTINATION etc)
+FOREACH(flag ${hal_pkgs_LDFLAGS})
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+ENDFOREACH(flag)
 
-# Sub-directory
-add_subdirectory(src)
+FOREACH(flag ${hal_pkgs_CFLAGS})
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${flag}")
+ENDFOREACH(flag)
+
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/src)
+FILE(GLOB SRCS src/*.cpp)
+
+IF("${ACCEL}" STREQUAL "ON")
+FILE(GLOB_RECURSE SRCS ${SRCS} src/accel/*.cpp)
+ADD_DEFINITIONS(-DENABLE_ACCEL)
+ENDIF()
+
+IF("${PROXIMITY}" STREQUAL "ON")
+FILE(GLOB_RECURSE SRCS ${SRCS} src/proxi/*.cpp)
+ADD_DEFINITIONS(-DENABLE_PROXIMITY)
+ENDIF()
+
+IF("${SENSORHUB}" STREQUAL "ON")
+FILE(GLOB_RECURSE SRCS ${SRCS} src/sensorhub/*.cpp)
+ADD_DEFINITIONS(-DENABLE_SENSORHUB)
+ENDIF()
+
+MESSAGE("Sources: ${SRCS}")
+ADD_LIBRARY(${PROJECT_NAME} SHARED ${SRCS})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} ${hal_pkgs_LDFLAGS})
+
+INSTALL(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_LIBDIR}/sensor)

@@ -35,7 +35,7 @@
 
 #define SENSORHUB_PROXIMITY_ENABLE_BIT 7
 
-static const sensor_handle_t handle = {
+static const sensor_info_t sensor_info = {
 	id: 0x1,
 	name: "Proximity Sensor",
 	type: SENSOR_DEVICE_PROXIMITY,
@@ -100,9 +100,9 @@ int proxi_device::get_poll_fd()
 	return m_node_handle;
 }
 
-int proxi_device::get_sensors(const sensor_handle_t **sensors)
+int proxi_device::get_sensors(const sensor_info_t **sensors)
 {
-	*sensors = &handle;
+	*sensors = &sensor_info;
 
 	return 1;
 }
@@ -176,7 +176,7 @@ int proxi_device::read_fd(uint32_t **ids)
 	}
 
 	event_ids.clear();
-	event_ids.push_back(handle.id);
+	event_ids.push_back(sensor_info.id);
 
 	*ids = &event_ids[0];
 

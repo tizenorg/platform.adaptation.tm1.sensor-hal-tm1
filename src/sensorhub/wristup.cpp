@@ -27,7 +27,7 @@
 #define SHUB_LIB_WRIST_UP	0
 #define WRIST_UP_PACKET_SIZE	1
 
-static const sensor_handle_t handle = {
+static const sensor_info_t sensor_info = {
 	id: SHUB_LIB_WRIST_UP,
 	name: WRIST_UP_NAME,
 	type: SENSOR_DEVICE_GESTURE_WRIST_UP,
@@ -51,9 +51,9 @@ wristup_sensor::~wristup_sensor()
 	INFO("wristup_sensor is destroyed!");
 }
 
-int16_t wristup_sensor::get_id(void)
+int32_t wristup_sensor::get_id(void)
 {
-	return handle.id;
+	return sensor_info.id;
 }
 
 bool wristup_sensor::enable(void)
@@ -86,4 +86,4 @@ bool wristup_sensor::set_attribute_str(int32_t attribute, char *value, int value
 	return false;
 }
 
-REGISTER_SENSORHUB_LIB(handle, wristup_sensor)
+REGISTER_SENSORHUB_LIB(sensor_info, wristup_sensor)

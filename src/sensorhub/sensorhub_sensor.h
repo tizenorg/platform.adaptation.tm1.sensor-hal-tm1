@@ -23,7 +23,7 @@ public:
 	sensorhub_sensor() {}
 	virtual ~sensorhub_sensor() {}
 
-	virtual int16_t get_id(void) = 0;
+	virtual int32_t get_id(void) = 0;
 
 	virtual bool enable(void) = 0;
 	virtual bool disable(void) = 0;

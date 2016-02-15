@@ -25,7 +25,7 @@ public:
 	wristup_sensor();
 	virtual ~wristup_sensor();
 
-	int16_t get_id(void);
+	int32_t get_id(void);
 
 	bool enable(void);
 	bool disable(void);

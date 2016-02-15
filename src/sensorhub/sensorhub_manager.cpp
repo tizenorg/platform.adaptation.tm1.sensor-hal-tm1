@@ -29,7 +29,7 @@ sensorhub_manager::~sensorhub_manager()
 		delete it.second;
 
 	m_id_sensors.clear();
-	m_handles.clear();
+	m_infos.clear();
 }
 
 sensorhub_manager& sensorhub_manager::get_instance() {
@@ -37,10 +37,10 @@ sensorhub_manager& sensorhub_manager::get_instance() {
 	return instance;
 }
 
-bool sensorhub_manager::add_sensor(sensor_handle_t handle, sensorhub_sensor *sensor)
+bool sensorhub_manager::add_sensor(sensor_info_t info, sensorhub_sensor *sensor)
 {
-	m_handles.push_back(handle);
-	m_id_sensors[handle.id] = sensor;
+	m_infos.push_back(info);
+	m_id_sensors[info.id] = sensor;
 
 	return true;
 }
@@ -58,17 +58,17 @@ sensorhub_sensor *sensorhub_manager::get_sensor(uint32_t id)
 	return m_id_sensors[id];
 }
 
-int sensorhub_manager::get_sensors(const sensor_handle_t **sensors)
+int sensorhub_manager::get_sensors(const sensor_info_t **sensors)
 {
 	int size;
 
-	if (m_handles.empty()) {
+	if (m_infos.empty()) {
 		*sensors = 0;
 		return 0;
 	}
 
-	size = m_handles.size();
-	*sensors = &m_handles[0];
+	size = m_infos.size();
+	*sensors = &m_infos[0];
 
 	return size;
 }

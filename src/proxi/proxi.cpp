@@ -35,6 +35,8 @@
 
 #define SENSORHUB_PROXIMITY_ENABLE_BIT 7
 
+#define RAW_DATA_TO_DISTANCE(x) ((x) * 5)
+
 static const sensor_info_t sensor_info = {
 	id: 0x1,
 	name: "Proximity Sensor",
@@ -192,7 +194,7 @@ int proxi_device::get_data(uint32_t id, sensor_data_t **data, int *length)
 	sensor_data->accuracy = SENSOR_ACCURACY_GOOD;
 	sensor_data->timestamp = m_fired_time;
 	sensor_data->value_count = 1;
-	sensor_data->values[0] = m_state;
+	sensor_data->values[0] = RAW_DATA_TO_DISTANCE(m_state);
 
 	*data = sensor_data;
 	*length = sizeof(sensor_data_t);

@@ -91,7 +91,7 @@ accel_device::accel_device()
 	m_interval_node = info.interval_node_path;
 
 	if ((m_node_handle = open(m_data_node.c_str(), O_RDWR)) < 0) {
-		_ERRNO(errno, _E, "accel handle open fail for accel processor");
+		ERR("accel handle open fail for accel processor, error:%s\n", strerror(errno));
 		throw ENXIO;
 	}
 

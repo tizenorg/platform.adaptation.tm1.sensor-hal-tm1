@@ -16,7 +16,7 @@
  */
 
 #include <sensor/sensor_hal.h>
-#include <sensor_log.h>
+#include <sensor_logs.h>
 #include <vector>
 
 #include "accel/accel.h"

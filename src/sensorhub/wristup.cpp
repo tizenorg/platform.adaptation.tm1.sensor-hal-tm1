@@ -17,7 +17,7 @@
 
 #include <algorithm>
 #include <sensor/sensor_hal.h>
-#include <sensor_log.h>
+#include <sensor_logs.h>
 
 #include "sensorhub_manager.h"
 #include "system_state.h"

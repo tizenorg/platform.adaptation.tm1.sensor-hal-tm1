@@ -21,7 +21,7 @@
 #include <sys/stat.h>
 #include <linux/input.h>
 #include <util.h>
-#include <sensor_log.h>
+#include <sensor_logs.h>
 
 #include "proxi.h"
 

@@ -24,7 +24,7 @@
 #include <sys/ioctl.h>
 #include <fstream>
 
-#include <sensor_log.h>
+#include <sensor_logs.h>
 #include <util.h>
 #include "sensorhub_controller.h"
 

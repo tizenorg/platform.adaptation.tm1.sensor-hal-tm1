@@ -35,7 +35,7 @@ void create_sensor(const char *name)
 		ERR("Failed to create %s sensor device, exception: %s", name, e.what());
 		return;
 	} catch (int err) {
-		ERR("Failed to create %s sensor device, err: %d, cause: %s", name, err, strerror(err));
+		ERR("Failed to create %s sensor device, err: %d, cause: %s", name, err, _STRERR(err));
 		return;
 	}
 

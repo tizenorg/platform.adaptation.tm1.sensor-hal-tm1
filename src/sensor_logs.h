@@ -47,6 +47,8 @@ enum sf_priority_type {
 #endif
 #define LOG_TAG	"SENSOR"
 
+#define _STRERR(err) strerror_r((err), NULL, 0)
+
 #ifdef _DEBUG
 #define DBG SLOGD
 #else

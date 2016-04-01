@@ -20,7 +20,7 @@
 
 #include <map>
 #include <vector>
-#include <sensor_logs.h>
+#include <sensor_log.h>
 
 #include "sensorhub_controller.h"
 #include "sensorhub_sensor.h"

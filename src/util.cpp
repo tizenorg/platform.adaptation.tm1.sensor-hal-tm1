@@ -20,7 +20,7 @@
 #include <string.h>
 #include <fstream>
 #include <util.h>
-#include <sensor_logs.h>
+#include <sensor_log.h>
 
 using std::ifstream;
 using std::ofstream;

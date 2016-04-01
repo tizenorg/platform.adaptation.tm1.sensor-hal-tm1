@@ -16,7 +16,7 @@
  */
 
 #include <gio/gio.h>
-#include <sensor_logs.h>
+#include <sensor_log.h>
 #include "dbus_util.h"
 
 void init_dbus(void)

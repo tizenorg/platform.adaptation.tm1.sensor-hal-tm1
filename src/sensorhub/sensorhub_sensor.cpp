@@ -15,7 +15,7 @@
  *
  */
 
-#include <sensor_logs.h>
+#include <sensor_log.h>
 #include <time.h>
 #include "sensorhub_controller.h"
 #include "sensorhub_sensor.h"

@@ -21,7 +21,7 @@
 #include <sys/stat.h>
 #include <linux/input.h>
 #include <util.h>
-#include <sensor_logs.h>
+#include <sensor_log.h>
 
 #include "proxi.h"
 
@@ -82,7 +82,7 @@ proxi_device::proxi_device()
 	m_enable_node = info.enable_node_path;
 
 	if ((m_node_handle = open(m_data_node.c_str(), O_RDWR)) < 0) {
-		ERR("accel handle open fail for accel processor, error:%s", strerror(errno));
+		_ERRNO(errno, _E, "proxi handle open fail for proxi device");
 		throw ENXIO;
 	}
 
@@ -154,7 +154,7 @@ bool proxi_device::update_value_input_event(void)
 	int len = read(m_node_handle, &proxi_event, sizeof(proxi_event));
 
 	if (len == -1) {
-		DBG("read(m_node_handle) is error:%s", strerror(errno));
+		_ERRNO(errno, _D, "Failed to read from m_node_handle[%d]", m_node_handle);
 		return false;
 	}
 

@@ -15,7 +15,7 @@
  *
  */
 
-#include <sensor_logs.h>
+#include <sensor_log.h>
 #include "dbus_util.h"
 #include "system_state.h"
 

@@ -16,7 +16,7 @@
  */
 
 #include <sensor/sensor_hal.h>
-#include <sensor_logs.h>
+#include <sensor_log.h>
 #include <vector>
 
 #include "accel/accel.h"
@@ -32,10 +32,10 @@ void create_sensor(const char *name)
 	try {
 		instance = new _sensor;
 	} catch (std::exception &e) {
-		ERR("Failed to create %s sensor device, exception: %s", name, e.what());
+		ERR("Failed to create %s sensor device (%s)", name, e.what());
 		return;
 	} catch (int err) {
-		ERR("Failed to create %s sensor device, err: %d, cause: %s", name, err, strerror(err));
+		_ERRNO(err, _E, "Failed to create %s sensor device", name);
 		return;
 	}
 

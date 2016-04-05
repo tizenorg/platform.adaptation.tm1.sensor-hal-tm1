@@ -126,26 +126,6 @@ bool proxi_device::disable(uint32_t id)
 	return true;
 }
 
-bool proxi_device::set_interval(uint32_t id, unsigned long interval_ms)
-{
-	return true;
-}
-
-bool proxi_device::set_batch_latency(uint32_t id, unsigned long val)
-{
-	return false;
-}
-
-bool proxi_device::set_attribute_int(uint32_t id, int32_t attribute, int32_t value)
-{
-	return false;
-}
-
-bool proxi_device::set_attribute_str(uint32_t id, int32_t attribute, char *value, int value_len)
-{
-	return false;
-}
-
 bool proxi_device::update_value_input_event(void)
 {
 	struct input_event proxi_event;
@@ -202,7 +182,3 @@ int proxi_device::get_data(uint32_t id, sensor_data_t **data, int *length)
 	return --remains;
 }
 
-bool proxi_device::flush(uint32_t id)
-{
-	return false;
-}

@@ -1,6 +1,6 @@
 Name:       sensor-hal-tm1
 Summary:    TM1 Sensor HAL
-Version:    1.0.1
+Version:    1.0.2
 Release:    0
 Group:      Service/Sensor
 License:    Apache-2.0

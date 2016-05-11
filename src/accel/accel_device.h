@@ -21,6 +21,7 @@
 #include <sensor/sensor_hal.h>
 #include <string>
 #include <vector>
+#include <functional>
 
 class accel_device : public sensor_device {
 public:
@@ -47,13 +48,18 @@ private:
 	unsigned long long m_fired_time;
 	bool m_sensorhub_controlled;
 
+	int m_method;
 	std::string m_data_node;
 	std::string m_enable_node;
 	std::string m_interval_node;
 
-	static std::vector<uint32_t> event_ids;
+	std::function<bool (void)> update_value;
+
+	std::vector<uint32_t> event_ids;
 
 	bool update_value_input_event(void);
+	bool update_value_iio(void);
+
 	void raw_to_base(sensor_data_t *data);
 };
-#endif /*_ACCEL_DEVICE_H_*/
+#endif /* _ACCEL_DEVICE_H_ */

@@ -20,32 +20,16 @@
 
 #include <dlog.h>
 
-#if !defined(NAME_MAX)
+#ifndef NAME_MAX
 #define NAME_MAX 256
 #endif
 
-#define SENSOR_TYPE_SHIFT 16
-
-enum sf_log_type {
-	SF_LOG_PRINT_FILE		= 1,
-	SF_LOG_SYSLOG			= 2,
-	SF_LOG_DLOG			= 3,
-};
-
-enum sf_priority_type {
-	SF_LOG_ERR			= 1,
-	SF_LOG_DBG			= 2,
-	SF_LOG_INFO			= 3,
-	SF_LOG_WARN			= 4,
-};
-
-#define MICROSECONDS(tv)        ((tv.tv_sec * 1000000ll) + tv.tv_usec)
-
-//for new log system - dlog
 #ifdef LOG_TAG
 	#undef LOG_TAG
 #endif
 #define LOG_TAG	"SENSOR"
+
+#define LOG_DUMP(fp, fmt, arg...) do { if (fp) fprintf(fp, fmt, ##arg); else _E(fmt, ##arg); } while(0)
 
 #ifdef _DEBUG
 #define DBG SLOGD
@@ -71,64 +55,64 @@ enum sf_priority_type {
 		tag(fmt" (%s[%d])", ##arg, error, errno); \
 	} while (0)
 
-#if defined(_DEBUG)
-#  define warn_if(expr, fmt, arg...) do { \
+#ifdef _DEBUG
+#define warn_if(expr, fmt, arg...) do { \
 		if(expr) { \
-			DBG("(%s) -> " fmt, #expr, ##arg); \
+			_D("(%s) -> " fmt, #expr, ##arg); \
 		} \
 	} while (0)
-#  define ret_if(expr) do { \
+#define ret_if(expr) do { \
 		if(expr) { \
-			DBG("(%s) -> %s() return", #expr, __FUNCTION__); \
+			_D("(%s) -> %s() return", #expr, __FUNCTION__); \
 			return; \
 		} \
 	} while (0)
-#  define retv_if(expr, val) do { \
+#define retv_if(expr, val) do { \
 		if(expr) { \
-			DBG("(%s) -> %s() return", #expr, __FUNCTION__); \
+			_D("(%s) -> %s() return", #expr, __FUNCTION__); \
 			return (val); \
 		} \
 	} while (0)
-#  define retm_if(expr, fmt, arg...) do { \
+#define retm_if(expr, fmt, arg...) do { \
 		if(expr) { \
-			ERR(fmt, ##arg); \
-			DBG("(%s) -> %s() return", #expr, __FUNCTION__); \
+			_E(fmt, ##arg); \
+			_D("(%s) -> %s() return", #expr, __FUNCTION__); \
 			return; \
 		} \
 	} while (0)
-#  define retvm_if(expr, val, fmt, arg...) do { \
+#define retvm_if(expr, val, fmt, arg...) do { \
 		if(expr) { \
-			ERR(fmt, ##arg); \
-			DBG("(%s) -> %s() return", #expr, __FUNCTION__); \
+			_E(fmt, ##arg); \
+			_D("(%s) -> %s() return", #expr, __FUNCTION__); \
 			return (val); \
 		} \
 	} while (0)
 
 #else
-#  define warn_if(expr, fmt, arg...) do { \
+#define warn_if(expr, fmt, arg...) do { \
 		if(expr) { \
-			ERR(fmt, ##arg); \
+			_E(fmt, ##arg); \
 		} \
 	} while (0)
-#  define ret_if(expr) do { \
+#define ret_if(expr) do { \
 		if(expr) { \
 			return; \
 		} \
 	} while (0)
-#  define retv_if(expr, val) do { \
+#define retv_if(expr, val) do { \
 		if(expr) { \
 			return (val); \
 		} \
 	} while (0)
-#  define retm_if(expr, fmt, arg...) do { \
+#define retm_if(expr, fmt, arg...) do { \
 		if(expr) { \
-			ERR(fmt, ##arg); \
+			_E(fmt, ##arg); \
 			return; \
 		} \
 	} while (0)
-#  define retvm_if(expr, val, fmt, arg...) do { \
+#define retvm_if(expr, val, fmt, arg...) do { \
 		if(expr) { \
-			ERR(fmt, ##arg); \
+			_E(fmt, ##arg); \
 			return (val); \
 		} \
 	} while (0)

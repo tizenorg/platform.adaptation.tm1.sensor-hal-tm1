@@ -27,12 +27,14 @@ using std::ofstream;
 using std::fstream;
 using std::string;
 
+#define PREFIX_EVENT "event"
+
 static bool get_event_num(const string &input_path, string &event_num)
 {
-	const string event_prefix = "event";
+	const string event_prefix = PREFIX_EVENT;
 	DIR *dir = NULL;
 	struct dirent dir_entry;
-	struct dirent *result;
+	struct dirent *result = NULL;
 	std::string node_name;
 	int error;
 	bool find = false;
@@ -56,11 +58,12 @@ static bool get_event_num(const string &input_path, string &event_num)
 
 		node_name = std::string(dir_entry.d_name);
 
-		if (node_name.compare(0, prefix_size, event_prefix) == 0) {
-			event_num = node_name.substr(prefix_size, node_name.size() - prefix_size);
-			find = true;
-			break;
-		}
+		if (node_name.compare(0, prefix_size, event_prefix) != 0)
+			continue;
+
+		event_num = node_name.substr(prefix_size, node_name.size() - prefix_size);
+		find = true;
+		break;
 	}
 
 	closedir(dir);
@@ -153,7 +156,7 @@ static bool get_input_method(const string &key, int &method, string &device_num)
 	std::string d_name;
 	DIR *dir = NULL;
 	struct dirent dir_entry;
-	struct dirent *result;
+	struct dirent *result = NULL;
 	int error;
 	bool find = false;
 
@@ -180,22 +183,24 @@ static bool get_input_method(const string &key, int &method, string &device_num)
 
 			d_name = std::string(dir_entry.d_name);
 
-			if (d_name.compare(0, prefix_size, input_info[i].prefix) == 0) {
-				name_node = input_info[i].dir_path + d_name + string("/name");
+			if (d_name.compare(0, prefix_size, input_info[i].prefix) != 0)
+				continue;
 
-				ifstream infile(name_node.c_str());
-				if (!infile)
-					continue;
+			name_node = input_info[i].dir_path + d_name + string("/name");
 
-				infile >> name;
+			ifstream infile(name_node.c_str());
+			if (!infile)
+				continue;
 
-				if (name == key) {
-					device_num = d_name.substr(prefix_size, d_name.size() - prefix_size);
-					find = true;
-					method = input_info[i].method;
-					break;
-				}
-			}
+			infile >> name;
+
+			if (name != key)
+				continue;
+
+			device_num = d_name.substr(prefix_size, d_name.size() - prefix_size);
+			find = true;
+			method = input_info[i].method;
+			break;
 		}
 
 		closedir(dir);
@@ -205,6 +210,18 @@ static bool get_input_method(const string &key, int &method, string &device_num)
 	}
 
 	return find;
+}
+
+bool util::set_monotonic_clock(int fd)
+{
+#ifdef EVIOCSCLOCKID
+	int clockId = CLOCK_MONOTONIC;
+	if (ioctl(fd, EVIOCSCLOCKID, &clockId) != 0) {
+		_E("Fail to set monotonic timestamp for fd[%d]", fd);
+		return false;
+	}
+#endif
+	return true;
 }
 
 bool util::set_enable_node(const string &node_path, bool sensorhub_controlled, bool enable, int enable_bit)
@@ -260,7 +277,6 @@ bool util::is_sensorhub_controlled(const string &key)
 
 bool util::get_node_info(const node_info_query &query, node_info &info)
 {
-	bool ret = false;
 	int method;
 	string device_num;
 
@@ -273,19 +289,16 @@ bool util::get_node_info(const node_info_query &query, node_info &info)
 
 	if (method == IIO_METHOD) {
 		if (query.sensorhub_controlled)
-			ret = get_sensorhub_iio_node_info(query.sensorhub_interval_node_name, device_num, info);
+			return get_sensorhub_iio_node_info(query.sensorhub_interval_node_name, device_num, info);
 		else
-			ret = get_iio_node_info(query.iio_enable_node_name, device_num, info);
+			return get_iio_node_info(query.iio_enable_node_name, device_num, info);
 	} else {
 		if (query.sensorhub_controlled)
-			ret = get_sensorhub_input_event_node_info(query.sensorhub_interval_node_name, device_num, info);
+			return get_sensorhub_input_event_node_info(query.sensorhub_interval_node_name, device_num, info);
 		else
-			ret = get_input_event_node_info(device_num, info);
+			return get_input_event_node_info(device_num, info);
 	}
-
-	return ret;
 }
-
 
 void util::show_node_info(node_info &info)
 {

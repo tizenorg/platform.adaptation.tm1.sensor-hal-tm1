@@ -46,3 +46,4 @@ rm -rf %{buildroot}
 %files
 %manifest packaging/%{name}.manifest
 %{_libdir}/sensor/*.so
+%{_datadir}/license/sensor-hal-tm1

@@ -21,10 +21,16 @@
 #include <sensor/sensor_hal.h>
 #include <string>
 #include <vector>
+#include <functional>
 
-class proxi_device : public sensor_device
-{
+class proxi_device : public sensor_device {
 public:
+	enum proxi_node_state_event_t {
+		PROXIMITY_NODE_STATE_NEAR = 0,
+		PROXIMITY_NODE_STATE_FAR = 1,
+		PROXIMITY_NODE_STATE_UNKNOWN = 2,
+	};
+
 	proxi_device();
 	virtual ~proxi_device();
 
@@ -43,11 +49,15 @@ private:
 	unsigned long long m_fired_time;
 	bool m_sensorhub_controlled;
 
+	int m_method;
 	std::string m_data_node;
 	std::string m_enable_node;
 
-	static std::vector<uint32_t> event_ids;
+	std::function<bool (void)> update_value;
+
+	std::vector<uint32_t> event_ids;
 
 	bool update_value_input_event(void);
 };
-#endif /*_PROXI_DEVICE_H_*/
+
+#endif /* _PROXI_DEVICE_H_ */

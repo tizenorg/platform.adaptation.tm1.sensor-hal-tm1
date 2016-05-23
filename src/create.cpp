@@ -19,8 +19,8 @@
 #include <sensor_log.h>
 #include <vector>
 
-#include "accel/accel.h"
-#include "proxi/proxi.h"
+#include "accel/accel_device.h"
+#include "proxi/proxi_device.h"
 #include "sensorhub/sensorhub.h"
 
 static std::vector<sensor_device_t> devs;
@@ -32,7 +32,7 @@ void create_sensor(const char *name)
 	try {
 		instance = new _sensor;
 	} catch (std::exception &e) {
-		ERR("Failed to create %s sensor device (%s)", name, e.what());
+		ERR("Failed to create %s sensor device, exception: %s", name, e.what());
 		return;
 	} catch (int err) {
 		_ERRNO(err, _E, "Failed to create %s sensor device", name);
@@ -45,18 +45,15 @@ void create_sensor(const char *name)
 extern "C" int create(sensor_device_t **devices)
 {
 #ifdef ENABLE_ACCEL
-	create_sensor<accel_device>("Accel");
+	create_sensor<accel_device>("Accelerometer");
 #endif
-
 #ifdef ENABLE_PROXIMITY
 	create_sensor<proxi_device>("Proximity");
 #endif
-
 #ifdef ENABLE_SENSORHUB
 	create_sensor<sensorhub_device>("Sensorhub");
 #endif
 
 	*devices = &devs[0];
-
 	return devs.size();
 }

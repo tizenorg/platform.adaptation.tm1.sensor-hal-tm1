@@ -30,14 +30,6 @@
 
 #include "accel_device.h"
 
-#define GRAVITY 9.80665
-#define G_TO_MG 1000
-#define RAW_DATA_TO_G_UNIT(X) (((float)(X))/((float)G_TO_MG))
-#define RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(X) (GRAVITY * (RAW_DATA_TO_G_UNIT(X)))
-
-#define MIN_RANGE(RES) (-((1 << (RES))/2))
-#define MAX_RANGE(RES) (((1 << (RES))/2)-1)
-
 #define MODEL_NAME "K2HH"
 #define VENDOR "ST Microelectronics"
 #define RESOLUTION 16
@@ -50,6 +42,14 @@
 
 #define INPUT_NAME	"accelerometer_sensor"
 #define ACCEL_SENSORHUB_POLL_NODE_NAME "accel_poll_delay"
+
+#define GRAVITY 9.80665
+#define G_TO_MG 1000
+#define RAW_DATA_TO_G_UNIT(X) (((float)(X))/((float)G_TO_MG))
+#define RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(X) (GRAVITY * (RAW_DATA_TO_G_UNIT(X)))
+
+#define MIN_RANGE(RES) (-((1 << (RES))/2))
+#define MAX_RANGE(RES) (((1 << (RES))/2)-1)
 
 static sensor_info_t sensor_info = {
 	id: 0x1,
@@ -124,7 +124,7 @@ accel_device::accel_device()
 		};
 	}
 
-	_I("accel_sensor is created!");
+	_I("accel_device is created!");
 }
 
 accel_device::~accel_device()
@@ -132,10 +132,10 @@ accel_device::~accel_device()
 	close(m_node_handle);
 	m_node_handle = -1;
 
-	_I("accel_sensor is destroyed!");
+	_I("accel_device is destroyed!");
 }
 
-int accel_device::get_poll_fd()
+int accel_device::get_poll_fd(void)
 {
 	return m_node_handle;
 }
@@ -320,7 +320,6 @@ int accel_device::read_fd(uint32_t **ids)
 
 int accel_device::get_data(uint32_t id, sensor_data_t **data, int *length)
 {
-	int remains = 1;
 	sensor_data_t *sensor_data;
 	sensor_data = (sensor_data_t *)malloc(sizeof(sensor_data_t));
 	retvm_if(!sensor_data, -ENOMEM, "Memory allocation failed");
@@ -337,12 +336,11 @@ int accel_device::get_data(uint32_t id, sensor_data_t **data, int *length)
 	*data = sensor_data;
 	*length = sizeof(sensor_data_t);
 
-	return --remains;
+	return 0;
 }
 
 void accel_device::raw_to_base(sensor_data_t *data)
 {
-	data->value_count = 3;
 	data->values[0] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data->values[0] * RAW_DATA_UNIT);
 	data->values[1] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data->values[1] * RAW_DATA_UNIT);
 	data->values[2] = RAW_DATA_TO_METRE_PER_SECOND_SQUARED_UNIT(data->values[2] * RAW_DATA_UNIT);
